@@ -3,15 +3,15 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; 
+    justify-content: flex-start;
     min-height: 100vh;
     margin: 0;
     padding: 20px;
     background-color: #f0f0f0;
     font-family: Arial, sans-serif;
     box-sizing: border-box;
+    touch-action: none;
 }
-
 #controls {
     margin-bottom: 20px;
 }
@@ -34,7 +34,7 @@ body {
 #container {
     display: flex;
     flex-wrap: wrap;
-    width: 90vw; 
+    width: 90vw;
     max-width: 960px; 
     aspect-ratio: 1 / 1; 
     border: 2px solid #000;
@@ -48,9 +48,8 @@ body {
 }
 
 .hovered {
-    background-color: black;
+    background-color: black; 
 }
-
 
 @media (max-width: 600px) {
     #resize-button {
