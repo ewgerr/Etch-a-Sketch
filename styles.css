@@ -10,10 +10,11 @@ body {
 #container {
     display: flex;
     flex-wrap: wrap;
-    width: 480px; /* 16 квадратів * 30px */
-    height: 480px; /* 16 квадратів * 30px */
+    width: 480px; 
+    height: 480px; 
     border: 2px solid #000;
 }
+
 
 .grid-item {
     width: 30px;
@@ -21,3 +22,7 @@ body {
     box-sizing: border-box;
     border: 1px solid #ccc;
 }
+.grid-item:hover {
+    background-color: black; /* Або будь-який інший колір */
+}
+
