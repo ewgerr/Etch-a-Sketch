@@ -1,28 +1,47 @@
 body {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
     height: 100vh;
     margin: 0;
     background-color: #f0f0f0;
+    font-family: Arial, sans-serif;
+}
+
+#controls {
+    margin-bottom: 20px;
+}
+
+#resize-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+#resize-button:hover {
+    background-color: #0056b3;
 }
 
 #container {
     display: flex;
     flex-wrap: wrap;
-    width: 480px; 
-    height: 480px; 
+    width: 400px;
+    height: 400px; 
     border: 2px solid #000;
 }
 
-
 .grid-item {
-    width: 30px;
-    height: 30px;
     box-sizing: border-box;
-    border: 1px solid #ccc;
-}
-.grid-item:hover {
-    background-color: black; /* Або будь-який інший колір */
+    border: 1px solid #675a5a;
+    transition: background-color 0.3s ease;
 }
 
+.hovered{
+    background-color: rgb(244, 6, 6); 
+}
