@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = '/register.html';
                 });
             } else {
+                // Показуємо кнопку виходу
+                document.getElementById('logoutButton').style.display = 'block';
+
                 // Ваш код для замальовування клітинок
                 const container = document.getElementById('container');
                 const colorPicker = document.getElementById('colorPicker');
@@ -28,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 async function fetchGrid(size) {
                     try {
-                        const response = await fetch(`http://localhost:3000/grid/${size}`);
+                        const response = await fetch(`/grid/${size}`);
                         const gridData = await response.json();
                         return gridData;
                     } catch (error) {
@@ -62,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const color = colorPicker.value;
 
                         try {
-                            const response = await fetch('http://localhost:3000/paint', {
+                            const response = await fetch('/paint', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json'
@@ -93,6 +96,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 createGrid(gridSize);
+
+                // Додаємо обробник для кнопки виходу
+                document.getElementById('logoutButton').addEventListener('click', () => {
+                    fetch('/logout')
+                        .then(() => {
+                            window.location.href = '/login.html';
+                        });
+                });
             }
         });
 });
