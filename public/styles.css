@@ -1,34 +1,36 @@
-
 body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     min-height: 100vh;
     margin: 0;
     padding: 20px;
     background-color: #f0f0f0;
     font-family: Arial, sans-serif;
     box-sizing: border-box;
-    touch-action: none;
 }
+
 #controls {
-    width: 100%;
-    margin-bottom: 20px;
     display: flex;
-    gap:20px;
-    justify-content: flex-end;
     align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#colorPicker {
+    margin-right: 10px;
 }
 
 #resize-button {
     padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
@@ -36,42 +38,18 @@ body {
     background-color: #0056b3;
 }
 
-.users {
-    border: #0056b3 solid 2px;
-    border-radius: 5px;
-    padding: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-    transition: all 0.3s ease;
-    flex-direction: column;
-    position: relative;
-}
-
 .user {
-    display: none;
     text-decoration: none;
-    padding: 10px;
+    padding: 10px 20px;
     font-size: 16px;
-    border: 1px solid #ccc;
+    color: white;
+    background-color: #007bff;
     border-radius: 5px;
-    width: 100px;
-    text-align: center;
-    border: #0056b3 solid 2px;
-    opacity: 0;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    transform: translateY(-10px);
+    transition: background-color 0.3s ease;
 }
 
-.users:hover {
-    max-height: 200px;
-}
-
-.users:hover .user {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
+.user:hover {
+    background-color: #0056b3;
 }
 #container {
     display: flex;
@@ -95,14 +73,11 @@ body {
 
 .grid-item {
     box-sizing: border-box;
-    border: 1px solid #ccc;
-    transition: background-color 0.3s ease;
 }
 
 .hovered {
     background-color: #000;
 }
-
 
 @media (max-width: 600px) {
     #resize-button {
