@@ -8,19 +8,19 @@
 </head>
 <body>
     <h2>Вхід</h2>
-<form action="/login" method="post">
-    <div class="container">
-    <label for="username">Ім'я користувача:</label>
-    <input type="text" id="username" name="username" required>
-    <br>
-    <label for="password" class="">Пароль:</label>
-    <input type="password" id="password" name="password" required>
-    <br>
-    <button type="submit">Увійти</button>
-    <br>
-    <a class="select" href="register.html">Реєстрація</a>
-    <a class="select" href="../index.html">Головна сторінка</a>
-</div>
-</form>
+    <button id="themeToggle" class="theme">Перемкнути тему</button>
+    <form action="/login" method="post">
+        <label for="username">Ім'я користувача:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password" class="">Пароль:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Увійти</button>
+        <br>
+        <a class="select" href="register.html">Реєстрація</a>
+        <a class="select" href="../index.html">Головна сторінка</a>
+    </form>
+    <script src="themeToggle.js"></script>
 </body>
 </html>

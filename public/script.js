@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('container');
             const colorPicker = document.getElementById('colorPicker');
             const resizeButton = document.getElementById('resize-button');
-            const userId = 'user-' + Math.random().toString(36).substr(2, 9); // Генеруємо унікальний ID користувача
+            const userId = 'user-' + Math.random().toString(36).substr(2, 9); 
             let gridSize = 50; // Стандартний розмір сітки
 
             async function fetchGrid(size) {

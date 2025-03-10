@@ -8,8 +8,8 @@
 </head>
 <body>
     <h2>Реєстрація</h2>
+    <button id="themeToggle" class="theme">Перемкнути тему</button>
     <form id="registerForm" action="/register" method="post">
-<div class="container">
         <label for="username">Ім'я користувача:</label>
         <input type="text" id="username" name="username" required>
         <div id="usernameError" class="error-message">Користувач вже існує</div>
@@ -26,8 +26,9 @@
         <button type="submit">Зареєструватися</button>
         <br>
         <a class="select" href="login.html">Вхід</a>
-    </div>
     </form>
+    <script src="themeToggle.js"></script>
     <script src="register.js"></script>
+    
 </body>
 </html>

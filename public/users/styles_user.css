@@ -1,3 +1,31 @@
+:root {
+    --background-color: #f0f0f0;
+    --text-color: #333;
+    --input-background-color: #fff;
+    --input-border-color: #ccc;
+    --input-invalid-border-color: #f01010;
+    --input-valid-border-color: #28a745;
+    --button-background-color: #007bff;
+    --button-hover-background-color: #0056b3;
+    --link-background-color: #007bff;
+    --link-hover-background-color: #0056b3;
+}
+
+
+body.dark {
+    --background-color: #333;
+    --text-color: #f0f0f0;
+    --input-background-color: #444;
+    --input-border-color: #666;
+    --input-invalid-border-color: #ff4d4d;
+    --input-valid-border-color: #4dff4d;
+    --button-background-color: #555;
+    --button-hover-background-color: #777;
+    --link-background-color: #555;
+    --link-hover-background-color: #777;
+}
+
+
 body {
     display: flex;
     flex-direction: column;
@@ -6,19 +34,31 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 20px;
-    background-color: #f0f0f0;
+    background-color: var(--background-color);
+    color: var(--text-color);
     font-family: Arial, sans-serif;
     box-sizing: border-box;
 }
 
 h2 {
-    color: #333;
     margin-bottom: 20px;
+}
+.theme {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px;
+    background-color: var(--button-background-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 form {
-    border: #f01010 solid 2px;
-    background-color: #fff;
+    background-color: var(--input-background-color);
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -31,7 +71,6 @@ form {
 label {
     display: block;
     margin-bottom: 5px;
-    color: #333;
 }
 
 input[type="text"],
@@ -39,7 +78,7 @@ input[type="password"] {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border-color);
     border-radius: 5px;
     box-sizing: border-box;
     outline: none;
@@ -48,17 +87,17 @@ input[type="password"] {
 input[type="text"].invalid,
 input[type="password"].invalid {
     box-shadow: 4px 4px 5px rgba(255, 0, 0, 0.794);
-    border-color: #f01010;
+    border-color: var(--input-invalid-border-color);
 }
 
 input[type="text"].valid,
 input[type="password"].valid {
     box-shadow: 4px 4px 5px rgba(66, 190, 4, 0.625);
-    border-color: #28a745;
+    border-color: var(--input-valid-border-color);
 }
 
 .error-message {
-    color: #f01010;
+    color: var(--input-invalid-border-color);
     display: none;
     margin-bottom: 10px;
 }
@@ -74,17 +113,17 @@ input[type="password"].valid {
 }
 
 #passwordRequirements p.invalid {
-    color: #f01010;
+    color: var(--input-invalid-border-color);
 }
 
 #passwordRequirements p.valid {
-    color: #28a745;
+    color: var(--input-valid-border-color);
 }
 
 button[type="submit"] {
     width: 100%;
     padding: 10px;
-    background-color: #007bff;
+    background-color: var(--button-background-color);
     color: white;
     border: none;
     border-radius: 5px;
@@ -94,7 +133,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-    background-color: #0056b3;
+    background-color: var(--button-hover-background-color);
 }
 
 .select {
@@ -103,7 +142,7 @@ button[type="submit"]:hover {
     padding: 10px;
     margin-top: 10px;
     text-align: center;
-    background-color: #007bff;
+    background-color: var(--link-background-color);
     color: white;
     border: none;
     border-radius: 5px;
@@ -113,7 +152,7 @@ button[type="submit"]:hover {
 }
 
 .select:hover {
-    background-color: #0056b3;
+    background-color: var(--link-hover-background-color);
 }
 
 @media (max-width: 600px) {
@@ -121,8 +160,10 @@ button[type="submit"]:hover {
         padding: 15px;
     }
 
-    button[type="submit"] {
+    button[type="submit"],
+    .select {
         font-size: 14px;
         padding: 8px;
     }
 }
+
