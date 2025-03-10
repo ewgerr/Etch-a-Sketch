@@ -17,12 +17,14 @@ h2 {
 }
 
 form {
+    border: #f01010 solid 2px;
     background-color: #fff;
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 400px;
+    height: auto;
     margin-bottom: 20px;
 }
 
@@ -40,6 +42,43 @@ input[type="password"] {
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
+    outline: none;
+}
+
+input[type="text"].invalid,
+input[type="password"].invalid {
+    box-shadow: 4px 4px 5px rgba(255, 0, 0, 0.794);
+    border-color: #f01010;
+}
+
+input[type="text"].valid,
+input[type="password"].valid {
+    box-shadow: 4px 4px 5px rgba(66, 190, 4, 0.625);
+    border-color: #28a745;
+}
+
+.error-message {
+    color: #f01010;
+    display: none;
+    margin-bottom: 10px;
+}
+
+#passwordRequirements {
+    margin-bottom: 10px;
+}
+
+#passwordRequirements p {
+    margin: 0;
+    padding: 5px 0;
+    font-size: 14px;
+}
+
+#passwordRequirements p.invalid {
+    color: #f01010;
+}
+
+#passwordRequirements p.valid {
+    color: #28a745;
 }
 
 button[type="submit"] {
@@ -55,6 +94,25 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.select {
+    display: block;
+    width: 95%;
+    padding: 10px;
+    margin-top: 10px;
+    text-align: center;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.select:hover {
     background-color: #0056b3;
 }
 

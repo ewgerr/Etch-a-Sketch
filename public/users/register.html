@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сторінка реєстрації</title>
+    <link rel="stylesheet" href="styles_user.css">
+</head>
+<body>
+    <h2>Реєстрація</h2>
+    <form id="registerForm" action="/register" method="post">
+<div class="container">
+        <label for="username">Ім'я користувача:</label>
+        <input type="text" id="username" name="username" required>
+        <div id="usernameError" class="error-message">Користувач вже існує</div>
+        <br>
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <div id="passwordRequirements">
+            <p id="length" class="invalid">Мінімум 8 символів</p>
+            <p id="uppercase" class="invalid">Одна велика літера</p>
+            <p id="lowercase" class="invalid">Одна мала літера</p>
+            <p id="number" class="invalid">Одна цифра</p>
+        </div>
+        <button type="submit">Зареєструватися</button>
+        <br>
+        <a class="select" href="login.html">Вхід</a>
+    </div>
+    </form>
+    <script src="register.js"></script>
+</body>
+</html>
