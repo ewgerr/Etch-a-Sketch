@@ -9,18 +9,21 @@
 <body>
     <h2>Вхід</h2>
     <button id="themeToggle" class="theme">Перемкнути тему</button>
-    <form action="/login" method="post">
+    <form id="loginForm" action="/login" method="post">
         <label for="username">Ім'я користувача:</label>
         <input type="text" id="username" name="username" required>
         <br>
         <label for="password" class="">Пароль:</label>
         <input type="password" id="password" name="password" required>
+        <div id="error-message" class="error-message"></div>
         <br>
         <button type="submit">Увійти</button>
         <br>
         <a class="select" href="register.html">Реєстрація</a>
         <a class="select" href="../index.html">Головна сторінка</a>
     </form>
+    
     <script src="themeToggle.js"></script>
+    <script src="login.js"></script>
 </body>
 </html>

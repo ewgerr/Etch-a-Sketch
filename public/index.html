@@ -1,21 +1,44 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Адаптивна сітка для малювання</title>
+    <title>Головна сторінка</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
+    <button id="themeToggle" class="theme">Перемкнути тему</button>
+    
     <div id="controls">
-        <input type="color" id="colorPicker" value="#000000">
-        <button id="resize-button">Змінити розмір сітки</button>
-        <a class="user" href="users/register.html">Реєстрація</a>
-        <a class="user" href="users/login.html">Вхід</a>
-        <a class="user" id="logoutButton" href="#">Вихід</a>
+        <div class="dropdown">
+            <button class="dropbtn">Меню</button>
+            <div class="dropdown-content">
+                <a href="users/login.html">Вхід</a>
+                <a href="users/register.html">Реєстрація</a>
+                <a href="#" id="logoutButton">Вихід</a>
+            </div>
+        </div>
     </div>
+
     <div id="container"></div>
+
+    <div id="colorPalette">
+        <div class="color-swatch custom-color">
+            <input type="color" id="customColor" name="customColor" value="#000000">
+        </div>
+        <div class="color-swatch" style="background-color: #ff0000;" data-color="#ff0000"></div>
+        <div class="color-swatch" style="background-color: #00ff00;" data-color="#00ff00"></div>
+        <div class="color-swatch" style="background-color: #0000ff;" data-color="#0000ff"></div>
+        <div class="color-swatch" style="background-color: #ffff00;" data-color="#ffff00"></div>
+        <div class="color-swatch" style="background-color: #ff00ff;" data-color="#ff00ff"></div>
+        <div class="color-swatch" style="background-color: #00ffff;" data-color="#00ffff"></div>
+        <div class="color-swatch" style="background-color: #ffffff;" data-color="#ffffff"></div>
+        <div class="color-swatch" style="background-color: #000000;" data-color="#000000"></div>
+    </div>
+
+    <script src="users/themeToggle.js"></script>
+    <script src="presets.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

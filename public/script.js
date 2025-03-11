@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const logoutButton = document.getElementById('logoutButton');
+    const colorPicker = document.getElementById('customColor'); // Використовуємо тільки нижній вибір кольору
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            fetch('/logout')
+                .then(() => {
+                    window.location.href = '/index.html';
+                });
+        });
+    }
+
     fetch('/check-session')
         .then(response => response.json())
         .then(data => {
@@ -9,8 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const container = document.getElementById('container');
-            const colorPicker = document.getElementById('colorPicker');
-            const resizeButton = document.getElementById('resize-button');
             const userId = 'user-' + Math.random().toString(36).substr(2, 9); 
             let gridSize = 50; // Стандартний розмір сітки
 
@@ -72,23 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            resizeButton.addEventListener('click', () => {
-                const newSize = parseInt(prompt('Введіть кількість квадратів на сторону (максимум 100):', gridSize));
-                if (!isNaN(newSize) && newSize > 0 && newSize <= 100) {
-                    gridSize = newSize;
-                    createGrid(gridSize);
-                } else {
-                    alert('Будь ласка, введіть число від 1 до 100.');
-                }
-            });
-
             createGrid(gridSize);
-
-            document.getElementById('logoutButton').addEventListener('click', () => {
-                fetch('/logout')
-                    .then(() => {
-                        window.location.href = '/index.html';
-                    });
-            });
         });
 });

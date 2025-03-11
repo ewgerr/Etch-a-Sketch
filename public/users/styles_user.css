@@ -97,9 +97,14 @@ input[type="password"].valid {
 }
 
 .error-message {
-    color: var(--input-invalid-border-color);
+    border:red 2px solid;
+    padding: 5px;
+    border-radius: 5px ;
+    color: red;
+    margin-top: 10px;
     display: none;
-    margin-bottom: 10px;
+    text-align: center;
+    text-transform: uppercase;
 }
 
 #passwordRequirements {
