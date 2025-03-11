@@ -82,6 +82,7 @@ input[type="password"] {
     border-radius: 5px;
     box-sizing: border-box;
     outline: none;
+    border: var(--text-color) 2px solid;
 }
 
 input[type="text"].invalid,
