@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const logoutButton = document.getElementById('logoutButton');
+    const usernameButton = document.getElementById('usernameButton');
     const colorPicker = document.getElementById('customColor'); // Використовуємо тільки нижній вибір кольору
 
     if (logoutButton) {
@@ -14,10 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/check-session')
         .then(response => response.json())
         .then(data => {
-            if (!data.loggedIn) {
-                document.getElementById('logoutButton').style.display = 'none';
-            } else {
+            if (data.loggedIn) {
+                usernameButton.textContent = data.username;
                 document.getElementById('logoutButton').style.display = 'block';
+            } else {
+                usernameButton.textContent = 'Username';
+                document.getElementById('logoutButton').style.display = 'none';
             }
 
             const container = document.getElementById('container');
