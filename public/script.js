@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error('Error:', error);
                     }
                 } else if (!data.loggedIn) {
-                    alert('Будь ласка, увійдіть в акаунт, щоб замальовувати клітинки.');
+                    alert('Будь ласка, увійдіть в акаунт, щоб замальовувати клітинки.Вхід знаходиться в правому верхньому кутку сторінки.');
                 }
             });
 
