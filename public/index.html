@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Головна сторінка</title>
+    <title>PixelStar</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
@@ -23,8 +23,10 @@
     </header>
 
     <main>
+        
         <div id="container"></div>
         <aside id="colorPalette">
+            <div id="paintedCellsCounter">Зафарбовані клітинки: 0</div>
             <div class="color-swatch custom-color">
                 <input type="color" id="customColor" name="customColor" value="#000000">
             </div>
@@ -37,10 +39,13 @@
             <div class="color-swatch" style="background-color: #ffffff;" data-color="#ffffff"></div>
             <div class="color-swatch" style="background-color: #000000;" data-color="#000000"></div>
         </aside>
+
+
     </main>
 
     <script src="users/themeToggle.js"></script>
     <script src="presets.js"></script>
     <script src="script.js"></script>
+    <script src="easterEgg.js"></script>
 </body>
 </html>

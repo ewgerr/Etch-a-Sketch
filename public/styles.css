@@ -49,6 +49,52 @@ body {
     box-sizing: border-box;
 }
 
+body.rainbow-theme {
+    animation: rainbowBackground 1s infinite;
+}
+
+@keyframes rainbowBackground {
+    0% { background-color: #ff0000; }
+    14% { background-color: #ff7f00; }
+    28% { background-color: #ffff00; }
+    42% { background-color: #00ff00; }
+    57% { background-color: #0000ff; }
+    71% { background-color: #4b0082; }
+    85% { background-color: #8b00ff; }
+    100% { background-color: #ff0000; }
+}
+
+@keyframes pop-in {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.confetti {
+    position: fixed;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    background-color: #ff0;
+    border-radius: 100%;
+    opacity: 0.7;
+    animation: fall 3s linear infinite;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(100vh);
+        border-radius: 100%;
+    }
+}
 header {
     display: flex;
     justify-content: space-between;
@@ -63,7 +109,8 @@ header .theme {
     background-color: var(--button-background-color);
     border: 2px solid var(--button-hover-background-color);
     color: white;
-    font-size: 16px;
+    font-size: 20px;
+    font-weight: bold;
     cursor: pointer;
     padding: 10px 20px;
     border-radius: 5px;
@@ -77,7 +124,8 @@ header .theme:hover {
 }
 
 header .zag {
-    font-size: 16px;
+    font-size: 20px;
+    font-weight: bold;
     color: white;
     text-transform: uppercase;
 }
@@ -90,7 +138,8 @@ header .dropbtn {
     background-color: var(--button-background-color);
     border: 2px solid var(--button-hover-background-color);
     color: white;
-    font-size: 16px;
+    font-size: 20px;
+    font-weight: bold;
     cursor: pointer;
     padding: 10px 20px;
     border-radius: 5px;
@@ -141,6 +190,7 @@ main {
     margin-top: 20px;
 }
 
+
 #container {
     display: flex;
     flex-wrap: wrap;
@@ -149,12 +199,11 @@ main {
     min-width: 300px;
     aspect-ratio: 1 / 1;
     border: 2px solid var(--container-border-color);
-    background-color: var(--container-background-color);
+    /* background-color: var(--container-background-color); */
+    background-color: white;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     overflow: hidden;
-    /* overflow: auto; 
-    touch-action: none; */
 }
 
 .cell {
@@ -168,19 +217,34 @@ main {
     border: 2px solid var(--cell-hover-border-color);
 }
 
+
+#paintedCellsCounter {
+    background-color: var(--button-background-color);
+    color: white;
+    font-weight: 500;
+    font-size: 20px;
+    padding: 8px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 1rem;
+    text-align: center;
+}
+
 #colorPalette {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; 
     align-items: center;
     justify-content: center;
     width: 20%;
     max-width: 200px;
+    margin-top: 20px;
+    padding: 40px;
     margin-left: 20px;
-    padding: 10px;
     background-color: var(--painter-background-color);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
+
 
 .color-swatch {
     width: 40px;
