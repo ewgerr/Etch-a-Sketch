@@ -87,4 +87,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             createGrid(gridSize);
         });
+
+    const container = document.getElementById('container');
+
+    let isDragging = false;
+    let startX, startY, scrollLeft, scrollTop;
+
+    container.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startX = e.touches[0].pageX - container.offsetLeft;
+        startY = e.touches[0].pageY - container.offsetTop;
+        scrollLeft = container.scrollLeft;
+        scrollTop = container.scrollTop;
+    });
+
+    container.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.touches[0].pageX - container.offsetLeft;
+        const y = e.touches[0].pageY - container.offsetTop;
+        const walkX = (x - startX) * 2; // швидкість прокрутки
+        const walkY = (y - startY) * 2; // швидкість прокрутки
+        container.scrollLeft = scrollLeft - walkX;
+        container.scrollTop = scrollTop - walkY;
+    });
+
+    container.addEventListener('touchend', () => {
+        isDragging = false;
+    });
 });
