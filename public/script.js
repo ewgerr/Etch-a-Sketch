@@ -60,13 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Додавання лічильника зафарбованих клітинок
             let paintedCellsCount = 0;
-            const paintedCellsThreshold = 1000; // Кількість клітинок для активації пасхалки
-
-            container.addEventListener('click', async (event) => {
+            const paintedCellsThreshold = 1000;// Кількість клітинок для активації пасхалки
+            let isEasterEggActive = false;
+            let isEasterEggTriggered = false;
+                        container.addEventListener('click', async (event) => {
                 if (event.target.classList.contains('cell') && data.loggedIn) {
                     const cellId = event.target.id;
                     const color = colorPicker.value;
-
+            
                     try {
                         const response = await fetch('/paint', {
                             method: 'POST',
@@ -75,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             },
                             body: JSON.stringify({ userId, cellId, color, gridSize })
                         });
-
+            
                         const result = await response.json();
                         if (response.ok) {
                             event.target.style.backgroundColor = color;
@@ -84,12 +85,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                 paintedCellsCount++;
                                 counterElement.innerText = `Зафарбовані клітинки: ${paintedCellsCount}`;
                             }
-
-                            if (paintedCellsCount >= paintedCellsThreshold) {
+            
+                            if (paintedCellsCount >= paintedCellsThreshold && !isEasterEggTriggered) {
+                                isEasterEggTriggered = true;
+                                isEasterEggActive = true;
                                 activateRainbowTheme();
                                 showCongratulations();
-                                paintedCellsCount = 0; // Скидання лічильника після активації пасхалки
-                                counterElement.innerText = `Зафарбовані клітинки: ${paintedCellsCount}`;
+                                setTimeout(() => {
+                                    isEasterEggActive = false;
+                                }, 5000); // Пасхалка активна 5 секунд
                             }
                         } else {
                             alert(result.message);
@@ -134,16 +138,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// let isEasterEggActive = false;
+
 function activateRainbowTheme() {
     document.body.classList.add('rainbow-theme');
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.classList.add('rotate');
+    });
     setTimeout(() => {
         document.body.classList.remove('rainbow-theme');
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.classList.remove('rotate');
+        });
     }, 5000); // Пасхалка активна 5 секунд
 }
 
 function showCongratulations() {
     const congratsMessage = document.createElement('div');
-    congratsMessage.innerText = 'Юху! Вітаю це ваша перша тисяча клітинок! Ви круті!';
+    congratsMessage.innerText = 'Юху! Вітаю це ваша перша 1000 клітинок! Ви круті!';
     congratsMessage.style.position = 'fixed';
     congratsMessage.style.top = '50%';
     congratsMessage.style.left = '50%';

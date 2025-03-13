@@ -53,6 +53,8 @@ body.rainbow-theme {
     animation: rainbowBackground 1s infinite;
 }
 
+
+
 @keyframes rainbowBackground {
     0% { background-color: #ff0000; }
     14% { background-color: #ff7f00; }
@@ -92,9 +94,24 @@ body.rainbow-theme {
     }
     100% {
         transform: translateY(100vh);
-        border-radius: 100%;
     }
 }
+
+.cell.rotate {
+    animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+
 header {
     display: flex;
     justify-content: space-between;
@@ -217,6 +234,9 @@ main {
     border: 2px solid var(--cell-hover-border-color);
 }
 
+.cell.rotate {
+    animation: rotate 2s linear infinite;
+}
 
 #paintedCellsCounter {
     background-color: var(--button-background-color);

@@ -3,7 +3,7 @@ let keysPressed = {};
 document.addEventListener('keydown', function(event) {
     keysPressed[event.key] = true;
 
-    if (keysPressed['X'] && keysPressed['D'] && keysPressed['U'] || keysPressed['Х'] && keysPressed['Д'] && keysPressed['У'] || keysPressed['x'] && keysPressed['d'] && keysPressed['u'] ) {
+    if (keysPressed['K'] && keysPressed['S'] && keysPressed['U'] || keysPressed['k'] && keysPressed['s'] && keysPressed['u'] ) {
         activateConfetti();
     }
 });
