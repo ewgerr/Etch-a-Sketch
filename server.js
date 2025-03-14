@@ -156,29 +156,32 @@ app.get('/check-username', (req, res) => {
     });
 });
 
+const grids = {}; // Кеш для сіток
+
+app.post('/paint', (req, res) => {
+    console.log('Отримані дані:', req.body); // Додайте цей рядок
+    const { changes, gridSize } = req.body;
+
+    if (!changes || !Array.isArray(changes)) {
+        return res.status(400).send({ success: false, message: 'Invalid data format' });
+    }
+
+    if (!grids[gridSize]) {
+        grids[gridSize] = {};
+    }
+
+    changes.forEach(({ cellId, color }) => {
+        grids[gridSize][cellId] = color;
+    });
+
+    res.status(200).send({ success: true });
+});
+
 app.get('/grid/:size', (req, res) => {
     const gridSize = req.params.size;
     res.status(200).send(grids[gridSize] || {});
 });
 
-const grids = {};
-const userLastPaintTime = {};
-
-app.post('/paint', (req, res) => {
-    const { userId, cellId, color, gridSize } = req.body;
-    const currentTime = Date.now();
-
-    if (!userLastPaintTime[userId] || currentTime - userLastPaintTime[userId] >= 60000) {  // 1 хвилина
-        if (!grids[gridSize]) {
-            grids[gridSize] = {};
-        }
-        grids[gridSize][cellId] = color;
-        userLastPaintTime[userId] = currentTime;
-        res.status(200).send({ success: true, message: 'Квадратик успішно зафарбовано' });
-    } else {
-        res.status(429).send({ success: false, message: 'Щоб зафарбувати наступний квадратик вам потрібно почекати 1 хвилину' });
-    }
-});
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));

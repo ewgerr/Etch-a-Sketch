@@ -25,8 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const container = document.getElementById('container');
+            if (!container) {
+                console.error('Елемент container не знайдено!');
+                return;
+            }
             const userId = 'user-' + Math.random().toString(36).substr(2, 9); 
-            let gridSize = 50; // Стандартний розмір сітки
+            let gridSize = 200; // Стандартний розмір сітки
             const cellSize = 20; // Постійний розмір клітинки
 
             async function fetchGrid(size) {
@@ -47,6 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.style.width = `${cellSize * size}px`;
                 container.style.height = `${cellSize * size}px`;
 
+                const fragment = document.createDocumentFragment(); // Використання DocumentFragment
+
                 for (let i = 0; i < size * size; i++) {
                     const cell = document.createElement('div');
                     cell.classList.add('cell');
@@ -56,8 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (gridData['cell-' + i]) {
                         cell.style.backgroundColor = gridData['cell-' + i];
                     }
-                    container.appendChild(cell);
+                    fragment.appendChild(cell); // Додаємо клітинку до фрагмента
                 }
+
+                container.appendChild(fragment); // Додаємо всі клітинки за один раз
             }
 
             // Додавання лічильника зафарбованих клітинок
@@ -66,46 +74,49 @@ document.addEventListener('DOMContentLoaded', () => {
             let isEasterEggActive = false;
             let isEasterEggTriggered = false;
 
-            container.addEventListener('click', async (event) => {
-                if (event.target.classList.contains('cell') && data.loggedIn) {
+            const changes = [];
+
+            let lastPaintTime = 0; // Ініціалізація змінної
+
+            container.addEventListener('click', (event) => {
+                const currentTime = Date.now();
+
+                // Перевірка затримки в 1 хвилину
+                if (currentTime - lastPaintTime < 60000) {
+                    alert('Щоб зафарбувати наступний квадратик, вам потрібно почекати 1 хвилину');
+                    return;
+                }
+
+                if (event.target.classList.contains('cell')) {
                     const cellId = event.target.id;
                     const color = colorPicker.value;
 
-                    try {
-                        const response = await fetch('/paint', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ userId, cellId, color, gridSize })
-                        });
-
-                        const result = await response.json();
-                        if (response.ok) {
+                    fetch('/paint', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            userId, // Використовуємо постійний userId
+                            changes: [{ cellId, color }],
+                            gridSize: 100 // Розмір сітки
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log(data.message);
                             event.target.style.backgroundColor = color;
-                            if (!event.target.classList.contains('painted')) {
-                                event.target.classList.add('painted');
-                                paintedCellsCount++;
-                                counterElement.innerText = `Зафарбовані клітинки: ${paintedCellsCount}`;
-                            }
 
-                            if (paintedCellsCount >= paintedCellsThreshold && !isEasterEggTriggered) {
-                                isEasterEggTriggered = true;
-                                isEasterEggActive = true;
-                                activateRainbowTheme();
-                                showCongratulations();
-                                setTimeout(() => {
-                                    isEasterEggActive = false;
-                                }, 5000); // Пасхалка активна 5 секунд
-                            }
+                            // Оновлюємо час останнього кліку
+                            lastPaintTime = currentTime;
                         } else {
-                            alert(result.message);
+                            alert(data.message);
                         }
-                    } catch (error) {
-                        console.error('Error:', error);
-                    }
-                } else if (!data.loggedIn) {
-                    alert('Будь ласка, увійдіть в акаунт, щоб замальовувати клітинки. Вхід знаходиться в правому верхньому кутку сторінки.');
+                    })
+                    .catch(error => {
+                        console.error('Помилка:', error);
+                    });
                 }
             });
 
@@ -215,3 +226,24 @@ function showCongratulations() {
         });
     }, 5000); // Повідомлення зникає через 5 секунд
 }
+
+fetch('/paint', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        changes: [
+            { cellId: 'cell-1', color: '#ff0000' },
+            { cellId: 'cell-2', color: '#00ff00' }
+        ],
+        gridSize: 50 //Тут також має бути розмір сітки
+    })
+})
+.then(response => response.json())
+.then(data => {
+    console.log('Відповідь сервера:', data);
+})
+.catch(error => {
+    console.error('Помилка:', error);
+});
