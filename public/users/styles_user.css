@@ -142,6 +142,22 @@ button[type="submit"]:hover {
     background-color: var(--button-hover-background-color);
 }
 
+.ger {
+    display: inline-block;
+    padding: 10px 20px;
+    margin-top: 10px;
+    background-color: #110e0e91;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    width: 90%;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.ger:hover {
+    background-color: #110e0e;
+}
+
 .select {
     display: block;
     width: 95%;

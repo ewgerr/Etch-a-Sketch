@@ -12,30 +12,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     usernameInput.addEventListener('input', () => {
         const username = usernameInput.value;
+        const usernamePattern = /^[a-zA-Z0-9_]{3,20}$/; // Дозволяє тільки букви, цифри та підкреслення
 
-        // Перевірка наявності користувача з таким ім'ям
-        if (username.length > 0) {
-            fetch(`/check-username?username=${username}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.exists) {
-                        usernameInput.classList.add('invalid');
-                        usernameInput.classList.remove('valid');
-                        usernameError.style.display = 'block';
-                    } else {
-                        usernameInput.classList.remove('invalid');
-                        usernameInput.classList.add('valid');
-                        usernameError.style.display = 'none';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        } else {
-            usernameInput.classList.remove('valid');
+        // Перевірка мінімальної довжини перед перевіркою регулярного виразу
+        if (username.length < 3) {
             usernameInput.classList.add('invalid');
-            usernameError.style.display = 'none';
+            usernameError.textContent = 'Ім\'я користувача має бути не менше 3 символів';
+            usernameError.style.display = 'block';
+            return;
         }
+
+        // Перевірка відповідності шаблону
+        if (!usernamePattern.test(username)) {
+            usernameInput.classList.add('invalid');
+            usernameError.textContent = 'Ім\'я користувача може містити тільки букви, цифри та підкреслення';
+            usernameError.style.display = 'block';
+            return;
+        }
+
+        // Якщо ім'я користувача відповідає шаблону, перевіряємо його на сервері
+        fetch(`/check-username?username=${encodeURIComponent(username)}`)
+            .then(response => {
+                console.log('HTTP статус:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Відповідь сервера:', data);
+                if (data.exists) {
+                    usernameInput.classList.add('invalid');
+                    usernameInput.classList.remove('valid');
+                    usernameError.textContent = 'Ім\'я користувача вже зайняте';
+                    usernameError.style.display = 'block';
+                } else {
+                    usernameInput.classList.remove('invalid');
+                    usernameInput.classList.add('valid');
+                    usernameError.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Помилка запиту:', error);
+            });
     });
 
     passwordInput.addEventListener('input', () => {

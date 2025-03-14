@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('container');
             const userId = 'user-' + Math.random().toString(36).substr(2, 9); 
             let gridSize = 50; // Стандартний розмір сітки
+            const cellSize = 20; // Постійний розмір клітинки
 
             async function fetchGrid(size) {
                 try {
@@ -43,7 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.innerHTML = '';
                 const gridData = await fetchGrid(size);
 
-                const cellSize = container.clientWidth / size;
+                container.style.width = `${cellSize * size}px`;
+                container.style.height = `${cellSize * size}px`;
 
                 for (let i = 0; i < size * size; i++) {
                     const cell = document.createElement('div');
@@ -60,14 +62,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Додавання лічильника зафарбованих клітинок
             let paintedCellsCount = 0;
-            const paintedCellsThreshold = 1000;// Кількість клітинок для активації пасхалки
+            const paintedCellsThreshold = 1000; // Кількість клітинок для активації пасхалки
             let isEasterEggActive = false;
             let isEasterEggTriggered = false;
-                        container.addEventListener('click', async (event) => {
+
+            container.addEventListener('click', async (event) => {
                 if (event.target.classList.contains('cell') && data.loggedIn) {
                     const cellId = event.target.id;
                     const color = colorPicker.value;
-            
+
                     try {
                         const response = await fetch('/paint', {
                             method: 'POST',
@@ -76,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             },
                             body: JSON.stringify({ userId, cellId, color, gridSize })
                         });
-            
+
                         const result = await response.json();
                         if (response.ok) {
                             event.target.style.backgroundColor = color;
@@ -85,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 paintedCellsCount++;
                                 counterElement.innerText = `Зафарбовані клітинки: ${paintedCellsCount}`;
                             }
-            
+
                             if (paintedCellsCount >= paintedCellsThreshold && !isEasterEggTriggered) {
                                 isEasterEggTriggered = true;
                                 isEasterEggActive = true;
@@ -102,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error('Error:', error);
                     }
                 } else if (!data.loggedIn) {
-                    alert('Будь ласка, увійдіть в акаунт, щоб замальовувати клітинки.Вхід знаходиться в правому верхньому кутку сторінки.');
+                    alert('Будь ласка, увійдіть в акаунт, щоб замальовувати клітинки. Вхід знаходиться в правому верхньому кутку сторінки.');
                 }
             });
 
@@ -115,15 +118,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let startX, startY, scrollLeft, scrollTop;
 
     container.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        startX = e.touches[0].pageX - container.offsetLeft;
-        startY = e.touches[0].pageY - container.offsetTop;
-        scrollLeft = container.scrollLeft;
-        scrollTop = container.scrollTop;
+        if (e.touches.length === 2) { // Перевірка на два пальці
+            isDragging = true;
+            startX = e.touches[0].pageX - container.offsetLeft;
+            startY = e.touches[0].pageY - container.offsetTop;
+            scrollLeft = container.scrollLeft;
+            scrollTop = container.scrollTop;
+        }
     });
 
     container.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
+        if (!isDragging || e.touches.length !== 2) return; // Перевірка на два пальці
         e.preventDefault();
         const x = e.touches[0].pageX - container.offsetLeft;
         const y = e.touches[0].pageY - container.offsetTop;
@@ -136,9 +141,32 @@ document.addEventListener('DOMContentLoaded', () => {
     container.addEventListener('touchend', () => {
         isDragging = false;
     });
-});
 
-// let isEasterEggActive = false;
+    // Додавання обробки дотику для одного пальця для прокрутки сторінки
+    document.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            isDragging = true;
+            startX = e.touches[0].pageX;
+            startY = e.touches[0].pageY;
+            scrollLeft = window.scrollX;
+            scrollTop = window.scrollY;
+        }
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging || e.touches.length !== 1) return;
+        e.preventDefault();
+        const x = e.touches[0].pageX;
+        const y = e.touches[0].pageY;
+        const walkX = (x - startX); // швидкість прокрутки
+        const walkY = (y - startY); // швидкість прокрутки
+        window.scrollTo(scrollLeft - walkX, scrollTop - walkY);
+    });
+
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+});
 
 function activateRainbowTheme() {
     document.body.classList.add('rainbow-theme');
