@@ -1,2 +1,2 @@
-config/client_secret_*.json
-client_secret_*.json
+config/client_secret*.json
+client_secret*.json

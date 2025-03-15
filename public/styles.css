@@ -97,7 +97,7 @@ body.rainbow-theme {
     }
 }
 
-.cell.rotate {
+/* .cell.rotate {
     animation: rotate 2s linear infinite;
 }
 
@@ -108,7 +108,7 @@ body.rainbow-theme {
     100% {
         transform: rotate(360deg);
     }
-}
+} */
 
 
 
@@ -265,7 +265,7 @@ main {
     text-align: center;
 }
 
-#colorPalette {
+/* #colorPalette {
     display: flex;
     flex-direction: column; 
     align-items: center;
@@ -278,8 +278,26 @@ main {
     background-color: var(--painter-background-color);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-}
+} */
 
+#colorPalette {
+    position: fixed; /* Закріплює елемент у верхній частині */
+    top: 40px; /* Відступ від верхнього краю */
+    z-index: 10; /* Забезпечує, що елемент буде над іншими */
+    left: 20px;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 20%;
+    max-width: 200px;
+    margin-top: 20px;
+    padding: 40px;
+    background-color: var(--painter-background-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
 
 .color-swatch {
     width: 40px;
@@ -345,101 +363,12 @@ main {
     padding: 0;
     border: none;
 }
-
-@media (min-width: 2560px) {
-    body {
-        font-size: 1.5rem; 
-        padding: 40px; 
-    }
-
-    header {
-        padding: 20px 40px; 
-        font-size: 1.5rem; 
-    }
-
-    header .theme, header .dropbtn {
-        font-size: 1.25rem; 
-        padding: 15px 30px; 
-    }
-
-    main {
-        max-width: 2400px; 
-        margin-top: 40px; 
-    }
-
-    #container {
-        width: 80%; 
-        max-width: 1600px; 
-        min-width: 600px;
-        border-width: 4px; 
-    }
-    .cell {
-        border-width: 2px;
-    }
-
-    #colorPalette {
-        width: 25%; 
-        max-width: 400px; 
-        margin-left: 40px;
-        padding: 20px;
-    }
-
-    .color-swatch {
-        width: 60px; 
-        height: 60px; 
-        margin: 10px; 
-    }
-}
-
-@media (min-width: 3840px) {
-    body {
-        font-size: 1.5rem; 
-        padding: 40px; 
-    }
-
-    header {
-        padding: 20px 40px; 
-        font-size: 1.5rem; 
-    }
-
-    header .theme, header .dropbtn {
-        font-size: 1.25rem; 
-        padding: 15px 30px; 
-    }
-
-    main {
-        max-width: 2400px; 
-        margin-top: 40px; 
-    }
-
-    #container {
-        width: 80%; 
-        max-width: 1600px; 
-        min-width: 600px;
-        border-width: 4px; 
-    }
-    .cell {
-        border-width: 2px;
-    }
-
-    #colorPalette {
-        width: 25%; 
-        max-width: 400px; 
-        margin-left: 40px;
-        padding: 20px;
-    }
-
-    .color-swatch {
-        width: 60px; 
-        height: 60px; 
-        margin: 10px; 
-    }
-}
-
+/* Загальні стилі для мобільних пристроїв */
 @media (max-width: 1024px) {
     header {
         flex-direction: column;
         align-items: center;
+        padding: 10px;
     }
 
     header .zag {
@@ -450,6 +379,7 @@ main {
     main {
         flex-direction: column;
         align-items: center;
+        margin-top: 20px;
     }
 
     #container {
@@ -458,16 +388,32 @@ main {
         min-width: 300px;
         overflow: auto;
         touch-action: none;
+        margin-top: 20px;
+        bottom: 200px;
     }
 
     #colorPalette {
-        width: 90%;
-        max-width: 90%;
-        margin-left: 0;
-        margin-top: 20px;
+        position: static; /* Фіксуємо поле з кольорами внизу */
+        top: 200px;
+        bottom: 10; /* Розташовуємо його внизу екрана */
+        left: 0; /* Розтягуємо на всю ширину */
+        width: 40%; /* Займає всю ширину екрана */
+        max-width: none; /* Знімаємо обмеження ширини */
+        margin: 0; /* Прибираємо зовнішні відступи */
+        padding: 10px; /* Внутрішні відступи */
+        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1); /* Тінь для відділення від сітки */
+        background-color: var(--painter-background-color); /* Фон для видимості */
+        border-radius: 5; /* Прибираємо закруглення */
+        z-index: 10; /* Забезпечуємо, що поле буде над іншими елементами */
+    }
+    .color-swatch {
+        width: 30px;
+        height: 30px;
+        margin: 5px;
     }
 }
 
+/* Для планшетів у горизонтальній орієнтації */
 @media (max-width: 768px) and (orientation: landscape) {
     header {
         flex-direction: row;
@@ -490,19 +436,33 @@ main {
         width: 80%;
         max-width: 80%;
         min-width: 300px;
+        margin-top: 20px;
         overflow: auto;
         touch-action: none;
     }
 
     #colorPalette {
-        width: 20%;
-        max-width: 200px;
-        margin-left: 10px;
-        margin-top: 0;
+        position: static; /* Фіксуємо поле з кольорами внизу */
+        bottom: 0; /* Розташовуємо його внизу екрана */
+        left: 0; /* Розтягуємо на всю ширину */
+        width: 10%; /* Займає всю ширину екрана */
+        max-width: none; /* Знімаємо обмеження ширини */
+        margin: 0; /* Прибираємо зовнішні відступи */
+        padding: 10px; /* Внутрішні відступи */
+        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1); /* Тінь для відділення від сітки */
+        background-color: var(--painter-background-color); /* Фон для видимості */
+        border-radius: 0; /* Прибираємо закруглення */
+        z-index: 10; /* Забезпечуємо, що поле буде над іншими елементами */
+    }
+
+    .color-swatch {
+        width: 25px;
+        height: 25px;
+        margin: 3px;
     }
 }
 
-
+/* Для смартфонів */
 @media (max-width: 480px) {
     header {
         flex-direction: column;
@@ -518,6 +478,7 @@ main {
     main {
         flex-direction: column;
         align-items: center;
+        margin-top: 10px;
     }
 
     #container {
@@ -526,18 +487,119 @@ main {
         min-width: 200px;
         overflow: auto;
         touch-action: none;
-    }
-
-    #colorPalette {
-        width: 100%;
-        max-width: 100%;
-        margin-left: 0;
         margin-top: 10px;
     }
 
+    #colorPalette {
+        position:static;
+        bottom: 0;
+        width: 50%;
+        max-width: none;
+        margin: 0;
+        padding: 10px;
+        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 0;
+    }
+
     .color-swatch {
-        width: 30px;
-        height: 30px;
-        margin: 3px;
+        width: 20px;
+        height: 20px;
+        margin: 2px;
+    }
+}
+
+/* Для великих екранів (2560px і більше) */
+@media (min-width: 2560px) {
+    body {
+        font-size: 1.5rem;
+        padding: 40px;
+    }
+
+    header {
+        padding: 20px 40px;
+        font-size: 1.5rem;
+    }
+
+    header .theme, header .dropbtn {
+        font-size: 1.25rem;
+        padding: 15px 30px;
+    }
+
+    main {
+        max-width: 2400px;
+        margin-top: 40px;
+    }
+
+    #container {
+        width: 80%;
+        max-width: 1600px;
+        min-width: 600px;
+        border-width: 4px;
+    }
+
+    .cell {
+        border-width: 2px;
+    }
+
+    #colorPalette {
+        top: 250px;
+        width: 25%;
+        max-width: 400px;
+        margin-left: 40px;
+        padding: 20px;
+    }
+
+    .color-swatch {
+        width: 60px;
+        height: 60px;
+        margin: 10px;
+    }
+}
+
+/* Для надвеликих екранів (3840px і більше) */
+@media (min-width: 3840px) {
+    body {
+        font-size: 2rem;
+        padding: 50px;
+    }
+
+    header {
+        padding: 30px 50px;
+        font-size: 2rem;
+    }
+
+    header .theme, header .dropbtn {
+        font-size: 1.5rem;
+        padding: 20px 40px;
+    }
+
+    main {
+        max-width: 3000px;
+        margin-top: 50px;
+    }
+
+    #container {
+        width: 80%;
+        max-width: 2000px;
+        min-width: 800px;
+        border-width: 5px;
+    }
+
+    .cell {
+        border-width: 3px;
+    }
+
+    #colorPalette {
+        width: 30%;
+        max-width: 500px;
+        margin-left: 50px;
+        padding: 30px;
+        top: 250px;
+    }
+
+    .color-swatch {
+        width: 80px;
+        height: 80px;
+        margin: 15px;
     }
 }

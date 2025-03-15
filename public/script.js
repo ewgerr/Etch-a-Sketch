@@ -1,217 +1,213 @@
 document.addEventListener('DOMContentLoaded', () => {
     const logoutButton = document.getElementById('logoutButton');
     const usernameButton = document.getElementById('usernameButton');
-    const colorPicker = document.getElementById('customColor'); // Використовуємо тільки нижній вибір кольору
+    const colorPicker = document.getElementById('customColor');
     const counterElement = document.getElementById('paintedCellsCounter');
+    const container = document.getElementById('container');
+    const cellSize = 20; // Розмір клітинки
+    const paintedCellsThreshold = 1000; // Поріг для пасхалки
+    let paintedCellsCount = 0; // Лічильник зафарбованих клітинок
+    let isEasterEggTriggered = false;
 
-    if (logoutButton) {
-        logoutButton.addEventListener('click', () => {
-            fetch('/logout')
-                .then(() => {
-                    window.location.href = '/index.html';
-                });
-        });
+    const userId = `user-${Math.random().toString(36).substr(2, 9)}`;
+    let gridSize = 50; // Розмір сітки (кількість клітинок в рядку або стовпці)
+
+    let isRequestInProgress = false; // Флаг для перевірки активного запиту
+    let lastRequestTime = 0; // Час останнього успішного запиту
+
+    async function fetchGrid(size) {
+        try {
+            const response = await fetch(`/grid/${size}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching grid:', error);
+            return {};
+        }
     }
 
-    fetch('/check-session')
-        .then(response => response.json())
-        .then(data => {
-            if (data.loggedIn) {
-                usernameButton.textContent = data.username;
-                document.getElementById('logoutButton').style.display = 'block';
-            } else {
-                usernameButton.textContent = 'Username';
-                document.getElementById('logoutButton').style.display = 'none';
-            }
+    async function createGrid(size) {
+        container.innerHTML = '';
+        try {
+            const gridData = await fetchGrid(size);
 
-            const container = document.getElementById('container');
-            const userId = 'user-' + Math.random().toString(36).substr(2, 9); 
-            let gridSize = 50; // Стандартний розмір сітки
-            const cellSize = 20; // Постійний розмір клітинки
+            const fragment = document.createDocumentFragment();
+            container.style.width = `${cellSize * size}px`;
+            container.style.height = `${cellSize * size}px`;
 
-            async function fetchGrid(size) {
-                try {
-                    const response = await fetch(`/grid/${size}`);
-                    const gridData = await response.json();
-                    return gridData;
-                } catch (error) {
-                    console.error('Error fetching grid:', error);
-                    return {};
+            for (let i = 0; i < size * size; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.id = `cell-${i}`;
+                cell.style.width = `${cellSize}px`;
+                cell.style.height = `${cellSize}px`;
+                if (gridData[`cell-${i}`]) {
+                    cell.style.backgroundColor = gridData[`cell-${i}`];
                 }
+                fragment.appendChild(cell);
             }
+            container.appendChild(fragment);
+        } catch (error) {
+            console.error('Error creating grid:', error);
+            alert('Не вдалося завантажити сітку. Спробуйте ще раз.');
+        }
+    }
 
-            async function createGrid(size) {
-                container.innerHTML = '';
-                const gridData = await fetchGrid(size);
+    async function handleCellClick(event) {
+        if (!event.target.classList.contains('cell')) return;
 
-                container.style.width = `${cellSize * size}px`;
-                container.style.height = `${cellSize * size}px`;
+        const currentTime = Date.now();
+        if (isRequestInProgress) {
+            alert('Зачекайте, поки попередній запит завершиться.');
+            return;
+        }
 
-                for (let i = 0; i < size * size; i++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('cell');
-                    cell.id = 'cell-' + i;
-                    cell.style.width = `${cellSize}px`;
-                    cell.style.height = `${cellSize}px`;
-                    if (gridData['cell-' + i]) {
-                        cell.style.backgroundColor = gridData['cell-' + i];
-                    }
-                    container.appendChild(cell);
-                }
-            }
+        const cell = event.target;
+        const cellId = cell.id;
+        const color = colorPicker.value;
 
-            // Додавання лічильника зафарбованих клітинок
-            let paintedCellsCount = 0;
-            const paintedCellsThreshold = 1000; // Кількість клітинок для активації пасхалки
-            let isEasterEggActive = false;
-            let isEasterEggTriggered = false;
+        try {
+            isRequestInProgress = true;
 
-            container.addEventListener('click', async (event) => {
-                if (event.target.classList.contains('cell') && data.loggedIn) {
-                    const cellId = event.target.id;
-                    const color = colorPicker.value;
-
-                    try {
-                        const response = await fetch('/paint', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ userId, cellId, color, gridSize })
-                        });
-
-                        const result = await response.json();
-                        if (response.ok) {
-                            event.target.style.backgroundColor = color;
-                            if (!event.target.classList.contains('painted')) {
-                                event.target.classList.add('painted');
-                                paintedCellsCount++;
-                                counterElement.innerText = `Зафарбовані клітинки: ${paintedCellsCount}`;
-                            }
-
-                            if (paintedCellsCount >= paintedCellsThreshold && !isEasterEggTriggered) {
-                                isEasterEggTriggered = true;
-                                isEasterEggActive = true;
-                                activateRainbowTheme();
-                                showCongratulations();
-                                setTimeout(() => {
-                                    isEasterEggActive = false;
-                                }, 5000); // Пасхалка активна 5 секунд
-                            }
-                        } else {
-                            alert(result.message);
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                    }
-                } else if (!data.loggedIn) {
-                    alert('Будь ласка, увійдіть в акаунт, щоб замальовувати клітинки. Вхід знаходиться в правому верхньому кутку сторінки.');
-                }
+            const response = await fetch('/paint', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, cellId, color, gridSize }),
             });
 
-            createGrid(gridSize);
-        });
+            const result = await response.json();
 
-    const container = document.getElementById('container');
+            if (response.ok) {
+                cell.style.backgroundColor = color;
+                lastRequestTime = currentTime;
 
-    let isDragging = false;
-    let startX, startY, scrollLeft, scrollTop;
+                paintedCellsCount++;
+                counterElement.textContent = `Зафарбовані клітинки: ${paintedCellsCount}`;
 
-    container.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 2) { // Перевірка на два пальці
-            isDragging = true;
-            startX = e.touches[0].pageX - container.offsetLeft;
-            startY = e.touches[0].pageY - container.offsetTop;
-            scrollLeft = container.scrollLeft;
-            scrollTop = container.scrollTop;
+                if (paintedCellsCount >= paintedCellsThreshold && !isEasterEggTriggered) {
+                    isEasterEggTriggered = true;
+                    activateRainbowTheme();
+                    showCongratulations();
+                }
+            } else {
+                if (response.status === 401) {
+                    alert('Ви повинні увійти в систему, щоб зафарбовувати клітинки.');
+                } else if (result.timeLeft) {
+                    alert(`Почекайте ${result.timeLeft} секунд перед наступним зафарбуванням.`);
+                } else {
+                    alert(result.message);
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Сталася помилка. Спробуйте ще раз.');
+        } finally {
+            isRequestInProgress = false;
         }
-    });
-
-    container.addEventListener('touchmove', (e) => {
-        if (!isDragging || e.touches.length !== 2) return; // Перевірка на два пальці
-        e.preventDefault();
-        const x = e.touches[0].pageX - container.offsetLeft;
-        const y = e.touches[0].pageY - container.offsetTop;
-        const walkX = (x - startX) * 2; // швидкість прокрутки
-        const walkY = (y - startY) * 2; // швидкість прокрутки
-        container.scrollLeft = scrollLeft - walkX;
-        container.scrollTop = scrollTop - walkY;
-    });
-
-    container.addEventListener('touchend', () => {
-        isDragging = false;
-    });
-
-    // Додавання обробки дотику для одного пальця для прокрутки сторінки
-    document.addEventListener('touchstart', (e) => {
-        if (e.touches.length === 1) {
-            isDragging = true;
-            startX = e.touches[0].pageX;
-            startY = e.touches[0].pageY;
-            scrollLeft = window.scrollX;
-            scrollTop = window.scrollY;
-        }
-    });
-
-    document.addEventListener('touchmove', (e) => {
-        if (!isDragging || e.touches.length !== 1) return;
-        e.preventDefault();
-        const x = e.touches[0].pageX;
-        const y = e.touches[0].pageY;
-        const walkX = (x - startX); // швидкість прокрутки
-        const walkY = (y - startY); // швидкість прокрутки
-        window.scrollTo(scrollLeft - walkX, scrollTop - walkY);
-    });
-
-    document.addEventListener('touchend', () => {
-        isDragging = false;
-    });
-});
-
-function activateRainbowTheme() {
-    document.body.classList.add('rainbow-theme');
-    document.querySelectorAll('.cell').forEach(cell => {
-        cell.classList.add('rotate');
-    });
-    setTimeout(() => {
-        document.body.classList.remove('rainbow-theme');
-        document.querySelectorAll('.cell').forEach(cell => {
-            cell.classList.remove('rotate');
-        });
-    }, 5000); // Пасхалка активна 5 секунд
-}
-
-function showCongratulations() {
-    const congratsMessage = document.createElement('div');
-    congratsMessage.innerText = 'Юху! Вітаю це ваша перша 1000 клітинок! Ви круті!';
-    congratsMessage.style.position = 'fixed';
-    congratsMessage.style.top = '50%';
-    congratsMessage.style.left = '50%';
-    congratsMessage.style.transform = 'translate(-50%, -50%)';
-    congratsMessage.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    congratsMessage.style.color = 'white';
-    congratsMessage.style.padding = '20px';
-    congratsMessage.style.borderRadius = '10px';
-    congratsMessage.style.zIndex = '1000';
-    congratsMessage.style.fontSize = '2rem';
-    congratsMessage.style.textAlign = 'center';
-    congratsMessage.style.animation = 'pop-in 0.5s ease-out';
-
-    document.body.appendChild(congratsMessage);
-
-    // Додавання конфеті
-    for (let i = 0; i < 100; i++) {
-        const confetti = document.createElement('div');
-        confetti.classList.add('confetti');
-        confetti.style.left = `${Math.random() * 100}vw`;
-        confetti.style.animationDelay = `${Math.random() * 2}s`;
-        document.body.appendChild(confetti);
     }
 
-    setTimeout(() => {
-        document.body.removeChild(congratsMessage);
-        document.querySelectorAll('.confetti').forEach(confetti => {
-            document.body.removeChild(confetti);
+    function activateRainbowTheme() {
+        document.body.classList.add('rainbow-theme');
+
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => cell.classList.add('rotate'));
+
+        setTimeout(() => {
+            document.body.classList.remove('rainbow-theme');
+            cells.forEach(cell => cell.classList.remove('rotate'));
+        }, 5000);
+    }
+
+    function showCongratulations() {
+        const congratsMessage = document.createElement('div');
+        congratsMessage.innerText = 'Юху! Вітаю це ваша перша 1000 клітинок! Ви круті!';
+        Object.assign(congratsMessage.style, {
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            padding: '20px',
+            borderRadius: '10px',
+            zIndex: '1000',
+            fontSize: '2rem',
+            textAlign: 'center',
+            animation: 'pop-in 0.5s ease-out',
         });
-    }, 5000); // Повідомлення зникає через 5 секунд
+
+        document.body.appendChild(congratsMessage);
+
+        for (let i = 0; i < 50; i++) { 
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.backgroundColor = getRandomColor();
+            confetti.style.animationDelay = `${Math.random() * 3}s`;
+            document.body.appendChild(confetti);
+
+            setTimeout(() => confetti.remove(), 3000);
+        }
+
+        setTimeout(() => document.body.removeChild(congratsMessage), 5000);
+    }
+
+    function getRandomColor() {
+        const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8b00ff'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    async function init() {
+        try {
+            const sessionResponse = await fetch('/check-session');
+            const sessionData = await sessionResponse.json();
+
+            if (sessionData.loggedIn) {
+                usernameButton.textContent = sessionData.username;
+                logoutButton.style.display = 'block';
+            } else {
+                usernameButton.textContent = 'Username';
+                logoutButton.style.display = 'none';
+            }
+
+            createGrid(gridSize);
+
+            container.addEventListener('click', handleCellClick);
+        } catch (error) {
+            console.error('Error initializing app:', error);
+        }
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', async () => {
+            await fetch('/logout');
+            window.location.href = '/index.html';
+        });
+    }
+
+    init();
+});
+
+async function handleCellClick(cellId, color, gridSize) {
+    const userId = 'exampleUserId'; 
+    try {
+        const response = await fetch('/paint', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userId, cellId, color, gridSize }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log(result.message);
+    } catch (error) {
+        console.error('Error:', error);
+    }
 }
