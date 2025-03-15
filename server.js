@@ -11,6 +11,7 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const fs = require('fs').promises; // Використовуємо асинхронний модуль fs.promises
 const compression = require('compression');
+const WebSocket = require('ws');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,6 +20,19 @@ const PORT = process.env.PORT || 3000;
 const db = new sqlite3.Database('./db/users.db', (err) => {
     if (err) console.error('Error connecting to database:', err);
     else console.log('Connected to SQLite database');
+});
+
+db.run(`
+    CREATE TABLE IF NOT EXISTS grid (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        cell_id TEXT NOT NULL,
+        color TEXT NOT NULL,
+        grid_size INTEGER NOT NULL,
+        UNIQUE(cell_id, grid_size)
+    )
+`, (err) => {
+    if (err) console.error('Error creating grid table:', err);
+    else console.log('Grid table initialized');
 });
 
 // Завантаження облікових даних Google
@@ -168,7 +182,7 @@ const grids = {}; // Зберігання сіток у пам'яті
 const gridFilePath = path.join(__dirname, 'public', 'grid.json');
 
 // Маршрут /paint з перевіркою автентифікації
-app.post('/paint', isAuthenticated, (req, res) => {
+app.post('/paint', isAuthenticated, async (req, res) => {
     try {
         const { userId, cellId, color, gridSize } = req.body;
 
@@ -179,20 +193,29 @@ app.post('/paint', isAuthenticated, (req, res) => {
         const currentTime = Date.now();
 
         if (!userLastPaintTime[userId] || currentTime - userLastPaintTime[userId] >= 60000) {
-            if (!grids[gridSize]) grids[gridSize] = {};
-            grids[gridSize][cellId] = color;
-            userLastPaintTime[userId] = currentTime;
+            // Оновлюємо стан сітки в базі даних
+            db.run(
+                "INSERT INTO grid (cell_id, color, grid_size) VALUES (?, ?, ?) ON CONFLICT(cell_id, grid_size) DO UPDATE SET color = ?",
+                [cellId, color, gridSize, color],
+                (err) => {
+                    if (err) {
+                        console.error('Error updating grid:', err);
+                        return res.status(500).json({ success: false, message: 'Internal server error' });
+                    }
 
-            console.log(`Користувач ${userId} зафарбував клітинку ${cellId} кольором ${color}`);
-            res.status(200).json({ success: true, message: 'Квадратик успішно зафарбовано' });
+                    userLastPaintTime[userId] = currentTime;
+                    console.log(`Користувач ${userId} зафарбував клітинку ${cellId} кольором ${color}`);
+                    res.status(200).json({ success: true, message: 'Квадратик успішно зафарбовано' });
+                }
+            );
         } else {
             const timeLeft = 60000 - (currentTime - userLastPaintTime[userId]);
-            const secondsLeft = Math.ceil(timeLeft / 1000); // Розрахунок секунд
+            const secondsLeft = Math.ceil(timeLeft / 1000);
             console.log(`Користувач ${userId} намагається зафарбувати клітинку ${cellId} занадто швидко. Залишилось ${secondsLeft} секунд.`);
-            res.status(429).json({ 
-                success: false, 
+            res.status(429).json({
+                success: false,
                 message: `Почекайте ${secondsLeft} секунд перед наступним зафарбуванням.`,
-                timeLeft: secondsLeft // Додаємо залишок часу у відповідь
+                timeLeft: secondsLeft
             });
         }
     } catch (error) {
@@ -201,19 +224,25 @@ app.post('/paint', isAuthenticated, (req, res) => {
     }
 });
 
+// Маршрут для отримання стану сітки
 app.get('/grid/:size', async (req, res) => {
     try {
         const gridSize = req.params.size;
-        console.log(`Отримано запит на /grid/${gridSize}`); 
+        console.log(`Отримано запит на /grid/${gridSize}`);
 
-        if (await fs.access(gridFilePath).then(() => true).catch(() => false)) {
-            const grid = JSON.parse(await fs.readFile(gridFilePath, 'utf8'));
-            return res.status(200).json(grid);
-        }
+        db.all("SELECT cell_id, color FROM grid WHERE grid_size = ?", [gridSize], (err, rows) => {
+            if (err) {
+                console.error('Error fetching grid:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
 
-        const grid = grids[gridSize] || {};
-        await fs.writeFile(gridFilePath, JSON.stringify(grid));
-        res.status(200).json(grid);
+            const grid = {};
+            rows.forEach(row => {
+                grid[row.cell_id] = row.color;
+            });
+
+            res.status(200).json(grid);
+        });
     } catch (error) {
         console.error(`Error handling grid for size ${req.params.size}:`, error);
         res.status(500).json({ error: 'Internal server error' });
@@ -247,10 +276,30 @@ app.get('/check-username', (req, res) => {
     });
 });
 
-
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+    console.log('Client connected to WebSocket');
+    ws.on('message', (message) => {
+        console.log('Received:', message);
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+});
+
+// Функція для надсилання оновлень клієнтам
+function broadcastGridUpdate(grid) {
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(grid));
+        }
+    });
+}

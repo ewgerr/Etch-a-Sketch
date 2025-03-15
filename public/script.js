@@ -15,6 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let isRequestInProgress = false; // Флаг для перевірки активного запиту
     let lastRequestTime = 0; // Час останнього успішного запиту
 
+    const socket = new WebSocket('ws://localhost:3000');
+
+    socket.onopen = () => {
+        console.log('WebSocket connection established');
+    };
+
+    socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
+
+    socket.onclose = () => {
+        console.log('WebSocket connection closed');
+    };
+
+    socket.onmessage = (event) => {
+        const grid = JSON.parse(event.data);
+        updateGridUI(grid); // Оновіть інтерфейс
+    };
+
     async function fetchGrid(size) {
         try {
             const response = await fetch(`/grid/${size}`);
