@@ -30,8 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     socket.onmessage = (event) => {
-        const grid = JSON.parse(event.data);
-        updateGridUI(grid); // Оновіть інтерфейс
+        const update = JSON.parse(event.data);
+
+        // Оновлюємо конкретну клітинку
+        const cell = document.getElementById(update.cellId);
+        if (cell) {
+            cell.style.backgroundColor = update.color;
+        } else {
+            console.warn(`Cell with ID ${update.cellId} not found`);
+        }
     };
 
     async function fetchGrid(size) {
@@ -191,8 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 logoutButton.style.display = 'none';
             }
 
-            createGrid(gridSize);
+            // Створюємо сітку
+            await createGrid(gridSize);
 
+            // Додаємо обробник кліків
             container.addEventListener('click', handleCellClick);
         } catch (error) {
             console.error('Error initializing app:', error);

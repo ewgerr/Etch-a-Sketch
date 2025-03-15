@@ -205,6 +205,10 @@ app.post('/paint', isAuthenticated, async (req, res) => {
 
                     userLastPaintTime[userId] = currentTime;
                     console.log(`Користувач ${userId} зафарбував клітинку ${cellId} кольором ${color}`);
+
+                    // Надсилаємо оновлення всім клієнтам
+                    broadcastGridUpdate({ cellId, color });
+
                     res.status(200).json({ success: true, message: 'Квадратик успішно зафарбовано' });
                 }
             );
@@ -296,10 +300,10 @@ wss.on('connection', (ws) => {
 });
 
 // Функція для надсилання оновлень клієнтам
-function broadcastGridUpdate(grid) {
+function broadcastGridUpdate(update) {
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(grid));
+            client.send(JSON.stringify(update));
         }
     });
 }
