@@ -3,20 +3,19 @@ const path = require('path');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const helmet = require('helmet'); // Додатковий захист від різних атак
+const helmet = require('helmet'); 
 const SQLiteStore = require('connect-sqlite3')(session);
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const fs = require('fs').promises; // Використовуємо асинхронний модуль fs.promises
+const fs = require('fs').promises; 
 const compression = require('compression');
 const WebSocket = require('ws');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Ініціалізація бази даних
 const db = new sqlite3.Database('./db/users.db', (err) => {
     if (err) console.error('Error connecting to database:', err);
     else console.log('Connected to SQLite database');
@@ -35,27 +34,34 @@ db.run(`
     else console.log('Grid table initialized');
 });
 
-// Завантаження облікових даних Google
+db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password TEXT,
+        google_id TEXT UNIQUE
+    )
+`, (err) => {
+    if (err) console.error('Error creating users table:', err);
+    else console.log('Users table initialized');
+});
+
 const credentialsPath = path.join(__dirname, 'config', 'client_secret.json');
 let credentials;
 
 (async () => {
     try {
-        // Перевіряємо, чи існує файл
         await fs.access(credentialsPath);
-        credentials = JSON.parse(await fs.readFile(credentialsPath, 'utf8')); // Асинхронне читання файлу
+        credentials = JSON.parse(await fs.readFile(credentialsPath, 'utf8'));
 
-        // Завантаження даних з файлу або змінних середовища
         const clientID = process.env.GOOGLE_CLIENT_ID || credentials.web?.client_id;
         const clientSecret = process.env.GOOGLE_CLIENT_SECRET || credentials.web?.client_secret;
         const callbackURL = process.env.GOOGLE_CALLBACK_URL || credentials.web?.redirect_uris[0];
 
-        // Перевірка наявності обов'язкових полів
         if (!clientID || !clientSecret || !callbackURL) {
             throw new Error('clientID, clientSecret або callbackURL відсутні.');
         }
 
-        // Ініціалізація GoogleStrategy
         passport.use(new GoogleStrategy({
             clientID,
             clientSecret,
@@ -80,7 +86,6 @@ let credentials;
     }
 })();
 
-// Middleware
 app.use(helmet());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -96,42 +101,63 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(compression());
 
-// Passport configuration
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
+
+app.use((req, res, next) => {
+    console.log('Session data:', req.session);
+    next();
+});
+
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser((id, done) => {
+    console.log('Deserializing user with id:', id);
     db.get("SELECT * FROM users WHERE id = ?", [id], (err, row) => {
-        if (err) return done(err);
+        if (err) {
+            console.error('Error deserializing user:', err);
+            return done(err);
+        }
+        if (!row) {
+            console.error('User not found during deserialization');
+            return done(null, false);
+        }
+        console.log('User deserialized:', row);
         done(null, row);
     });
 });
 
-// Функція для виконання запитів до бази даних
 function queryDatabase(query, params = []) {
     return new Promise((resolve, reject) => {
         db.all(query, params, (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows);
+            if (err) {
+                console.error('Database query error:', err);
+                reject(err);
+            } else {
+                resolve(rows);
+            }
         });
     });
 }
 
-// Middleware для перевірки автентифікації
 function isAuthenticated(req, res, next) {
-    console.log('Перевірка автентифікації:', req.session.user);
-    if (req.session && req.session.user) {
-        return next(); // Користувач автентифікований
+    console.log('Session data during authentication:', req.session);
+    if (req.session && req.session.userId) {
+        return next(); 
     } else {
-        return res.status(401).json({ success: false, message: 'Ви повинні увійти в систему, щоб зафарбовувати клітинки.' });
+        return res.status(401).json({ success: false, message: 'Ви повинні увійти в систему, щоб отримати доступ.' });
     }
 }
 
-// Routes
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile'] }));
 
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/users/login.html' }),
     (req, res) => {
-        req.session.user = req.user.username;
+        console.log('User after Google login:', req.user); 
+        req.session.userId = req.user.id;
+        console.log('Session after Google login:', req.session); 
         res.redirect('/');
     }
 );
@@ -159,14 +185,14 @@ app.post('/register', async (req, res) => {
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
-        const users = await queryDatabase("SELECT username, password FROM users WHERE username = ?", [username]);
+        const users = await queryDatabase("SELECT id, username, password FROM users WHERE username = ?", [username]);
         if (users.length === 0) {
             return res.status(401).json({ message: 'Невірне ім\'я користувача або пароль' });
         }
 
         const match = await bcrypt.compare(password, users[0].password);
         if (match) {
-            req.session.user = username;
+            req.session.userId = users[0].id;
             res.redirect('/');
         } else {
             res.status(401).json({ message: 'Невірне ім\'я користувача або пароль' });
@@ -177,26 +203,32 @@ app.post('/login', async (req, res) => {
     }
 });
 
-const userLastPaintTime = {}; // Зберігання часу останнього зафарбування для кожного користувача
-const grids = {}; // Зберігання сіток у пам'яті
+const userLastPaintTime = {};
+const grids = {};
 const gridFilePath = path.join(__dirname, 'public', 'grid.json');
 
-// Маршрут /paint з перевіркою автентифікації
 app.post('/paint', isAuthenticated, async (req, res) => {
     try {
-        const { userId, cellId, color, gridSize } = req.body;
+        const userId = req.session.userId; 
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Користувач не автентифікований' });
+        }
 
-        if (!userId || !cellId || !color || !gridSize) {
+        const { cellId, color, gridSize } = req.body;
+
+        if (!cellId || !color || !gridSize) {
             return res.status(400).json({ success: false, message: 'Invalid input data' });
         }
 
         const currentTime = Date.now();
 
         if (!userLastPaintTime[userId] || currentTime - userLastPaintTime[userId] >= 60000) {
-            // Оновлюємо стан сітки в базі даних
             db.run(
-                "INSERT INTO grid (cell_id, color, grid_size) VALUES (?, ?, ?) ON CONFLICT(cell_id, grid_size) DO UPDATE SET color = ?",
-                [cellId, color, gridSize, color],
+                `INSERT INTO grid (cell_id, color, grid_size, user_id) 
+                 VALUES (?, ?, ?, ?) 
+                 ON CONFLICT(cell_id, grid_size) 
+                 DO UPDATE SET color = ?, user_id = ?`,
+                [cellId, color, gridSize, userId, color, userId],
                 (err) => {
                     if (err) {
                         console.error('Error updating grid:', err);
@@ -206,7 +238,6 @@ app.post('/paint', isAuthenticated, async (req, res) => {
                     userLastPaintTime[userId] = currentTime;
                     console.log(`Користувач ${userId} зафарбував клітинку ${cellId} кольором ${color}`);
 
-                    // Надсилаємо оновлення всім клієнтам
                     broadcastGridUpdate({ cellId, color });
 
                     res.status(200).json({ success: true, message: 'Квадратик успішно зафарбовано' });
@@ -228,39 +259,83 @@ app.post('/paint', isAuthenticated, async (req, res) => {
     }
 });
 
-// Маршрут для отримання стану сітки
-app.get('/grid/:size', async (req, res) => {
+app.get('/grid/:size', isAuthenticated, async (req, res) => {
     try {
-        const gridSize = req.params.size;
-        console.log(`Отримано запит на /grid/${gridSize}`);
+        const gridSize = parseInt(req.params.size, 10);
+        const query = `
+            SELECT cell_id, color
+            FROM grid
+            WHERE grid_size = ?
+        `;
+        const gridData = await queryDatabase(query, [gridSize]);
 
-        db.all("SELECT cell_id, color FROM grid WHERE grid_size = ?", [gridSize], (err, rows) => {
-            if (err) {
-                console.error('Error fetching grid:', err);
-                return res.status(500).json({ error: 'Internal server error' });
-            }
-
-            const grid = {};
-            rows.forEach(row => {
-                grid[row.cell_id] = row.color;
-            });
-
-            res.status(200).json(grid);
+        const formattedData = {};
+        gridData.forEach(cell => {
+            formattedData[cell.cell_id] = cell.color;
         });
+
+        res.status(200).json(formattedData);
     } catch (error) {
-        console.error(`Error handling grid for size ${req.params.size}:`, error);
+        console.error('Error fetching grid data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/grid', async (req, res) => {
+    try {
+        const query = `
+            SELECT cell_id, color, grid_size, user_id
+            FROM grid
+        `;
+        const gridData = await queryDatabase(query);
+
+        res.status(200).json(gridData);
+    } catch (error) {
+        console.error('Error fetching grid data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/leaderboard', async (req, res) => {
+    try {
+        const query = `
+            SELECT u.username, COUNT(g.cell_id) AS painted_cells
+            FROM users u
+            LEFT JOIN grid g ON u.id = g.user_id
+            GROUP BY u.username
+            ORDER BY painted_cells DESC
+        `;
+        const leaderboard = await queryDatabase(query);
+
+        res.status(200).json(leaderboard);
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
 app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/users/login.html');
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+        }
+        res.redirect('/users/login.html');
+    });
 });
 
 app.get('/check-session', (req, res) => {
-    if (req.session.user) {
-        res.json({ loggedIn: true, username: req.session.user });
+    if (req.session.userId) {
+        db.get("SELECT username FROM users WHERE id = ?", [req.session.userId], (err, row) => {
+            if (err) {
+                console.error('Error fetching username:', err);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+            if (row) {
+                res.json({ loggedIn: true, username: row.username });
+            } else {
+                res.json({ loggedIn: false });
+            }
+        });
     } else {
         res.json({ loggedIn: false });
     }
@@ -280,7 +355,27 @@ app.get('/check-username', (req, res) => {
     });
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.get('/painted-cells', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.session.userId; 
+        const query = `
+            SELECT COUNT(*) AS painted_cells
+            FROM grid
+            WHERE user_id = ?
+        `;
+        const result = await queryDatabase(query, [userId]);
+        res.status(200).json({ paintedCells: result[0].painted_cells });
+    } catch (error) {
+        console.error('Error fetching painted cells count:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.use(express.static(path.join(__dirname, 'public'), {
+    setHeaders: (res, filePath) => {
+        console.log(`Serving file: ${filePath}`);
+    }
+}));
 
 const server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
@@ -299,11 +394,69 @@ wss.on('connection', (ws) => {
     });
 });
 
-// Функція для надсилання оновлень клієнтам
+
 function broadcastGridUpdate(update) {
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify(update));
         }
     });
+}
+
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+});
+
+async function handleCellClick(event) {
+    if (!event.target.classList.contains('cell')) return;
+
+    const currentTime = Date.now();
+    if (isRequestInProgress) {
+        alert('Зачекайте, поки попередній запит завершиться.');
+        return;
+    }
+
+    const cell = event.target;
+    const cellId = cell.id;
+    const color = colorPicker.value;
+
+    try {
+        isRequestInProgress = true;
+
+        const response = await fetch('/paint', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, cellId, color, gridSize }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            cell.style.backgroundColor = color;
+            lastRequestTime = currentTime;
+
+            paintedCellsCount++;
+            counterElement.textContent = `Зафарбовані клітинки: ${paintedCellsCount}`;
+
+            if (paintedCellsCount >= paintedCellsThreshold && !isEasterEggTriggered) {
+                isEasterEggTriggered = true;
+                activateRainbowTheme();
+                showCongratulations();
+            }
+        } else {
+            if (response.status === 401) {
+                alert('Ви повинні увійти в систему, щоб зафарбовувати клітинки.');
+            } else if (result.timeLeft) {
+                alert(`Почекайте ${result.timeLeft} секунд перед наступним зафарбуванням.`);
+            } else {
+                alert(result.message);
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Сталася помилка. Спробуйте ще раз.');
+    } finally {
+        isRequestInProgress = false;
+    }
 }

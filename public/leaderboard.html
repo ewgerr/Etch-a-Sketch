@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таблиця лідерів</title>
+    <link rel="stylesheet" href="leaderbord.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <button id="themeToggle" >Перемкнути тему</button>
+        <h1>Таблиця лідерів</h1>
+        <nav>
+            <a href="index.html">Назад</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Лідери</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Місце</th>
+                        <th>Користувач</th>
+                        <th>Зафарбовані клітинки</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard">
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="users/themeToggle.js"></script>
+    <script src="./script.js"></script>
+    
+</body>
+</html>

@@ -1,0 +1,320 @@
+/* Основні змінні кольорів */
+/* Основні змінні кольорів */
+:root {
+    --background-color: #f4f4f9;
+    --text-color: #333;
+    --header-text-color: #fff;
+    --input-background-color: #fff;
+    --input-border-color: #ccc;
+    --input-invalid-border-color: #f01010;
+    --input-valid-border-color: #28a745;
+    --button-background-color: #4CAF50;
+    --button-hover-background-color: #45a049;
+    --link-background-color: #4CAF50;
+    --link-hover-background-color: #45a049;
+    --container-background-color: #fff;
+    --container-border-color: #000;
+    --cell-border-color: #ccc;
+    --cell-hover-border-color: #000;
+    --hovered-background-color: #f1f1f1;
+    --painter-background-color: rgba(153, 147, 147, 0.611);
+    --h-color:#28a745;
+}
+
+/* Темна тема */
+body.dark {
+    --background-color: #121212;
+    --text-color: #e0e0e0;
+    --header-text-color: #e0e0e0;
+    --input-background-color: #1e1e1e;
+    --input-border-color: #444;
+    --input-invalid-border-color: #ff4d4d;
+    --input-valid-border-color: #4dff4d;
+    --button-background-color: #333;
+    --button-hover-background-color: #555;
+    --link-background-color: #333;
+    --link-hover-background-color: #555;
+    --container-background-color: #1e1e1e;
+    --container-border-color: #fff;
+    --cell-border-color: #444;
+    --cell-hover-border-color: #555;
+    --hovered-background-color: #2a2a2a;
+    --h-color:#ffffff;
+}
+
+
+/* Загальні стилі */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+header {
+    background-color: var(--button-background-color);
+    color: var(--header-text-color);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+header nav a {
+    color: var(--header-text-color);
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 20px;
+    transition: color 0.3s;
+}
+
+header nav a:hover {
+    color: var(--text-color);
+}
+
+#themeToggle {
+    background-color: var(--header-text-color);
+    color: var(--link-background-color);
+    border: 2px solid var(--input-border-color);
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+#themeToggle:hover {
+    background-color: var(--button-background-color);
+    color: var(--header-text-color);
+}
+
+main {
+    top: 40px;
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 10px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+h2 {
+    text-align: center;
+    color: var(--h-color);
+    margin-bottom: 20px;
+}
+
+/* Стилі для таблиці */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+    background-color: var(--container-background-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+thead {
+    background-color: var(--button-background-color);
+    color: var(--header-text-color);
+}
+
+thead th {
+    padding: 15px;
+    text-align: left;
+    font-size: 1rem;
+}
+
+tbody tr {
+    border-bottom: 1px solid var(--cell-border-color);
+}
+
+tbody tr:nth-child(even) {
+    background-color: var(--input-background-color);
+}
+
+tbody tr:hover {
+    background-color: var(--input-border-color);
+}
+
+tbody td {
+    padding: 15px;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+tbody td:first-child {
+    font-weight: bold;
+    text-align: center;
+}
+
+tbody td:last-child {
+    text-align: right;
+}
+
+/* Стилі для перших трьох місць */
+tr.gold td:first-child {
+    background: url('img/gold.png') no-repeat left center;
+    background-size: 20px 20px;
+    padding-left: 25px;
+    font-weight: bold;
+    color: #FFD700;
+}
+
+tr.silver td:first-child {
+    background: url('img/silver.png') no-repeat left center;
+    background-size: 20px 20px;
+    padding-left: 25px;
+    font-weight: bold;
+    color: #C0C0C0;
+}
+
+tr.bronze td:first-child {
+    background: url('img/bronze.png') no-repeat left center;
+    background-size: 20px 20px;
+    padding-left: 25px;
+    font-weight: bold;
+    color: #CD7F32;
+}
+/* Адаптивність */
+@media (max-width: 600px) {
+    table {
+        font-size: 0.8rem;
+    }
+
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    #themeToggle {
+        padding: 5px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Адаптивність для екранів шириною до 1200px */
+@media (max-width: 1200px) {
+    main {
+        padding: 15px;
+    }
+
+    table {
+        font-size: 0.9rem;
+    }
+
+    header h1 {
+        font-size: 1.6rem;
+    }
+
+    #themeToggle {
+        padding: 5px 8px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Адаптивність для екранів шириною до 992px */
+@media (max-width: 992px) {
+    main {
+        padding: 10px;
+    }
+
+    table {
+        font-size: 0.85rem;
+    }
+
+    header h1 {
+        font-size: 1.4rem;
+    }
+
+    #themeToggle {
+        padding: 4px 7px;
+        font-size: 0.85rem;
+    }
+
+    thead th {
+        font-size: 0.9rem;
+    }
+
+    tbody td {
+        padding: 10px;
+    }
+}
+
+/* Адаптивність для екранів шириною до 768px */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    header h1 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+
+    nav a {
+        margin-left: 0;
+        margin-right: 10px;
+    }
+
+    table {
+        font-size: 0.8rem;
+    }
+
+    tbody td {
+        padding: 8px;
+    }
+}
+
+/* Адаптивність для екранів шириною до 576px */
+@media (max-width: 576px) {
+    header {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 1rem;
+    }
+
+    #themeToggle {
+        padding: 3px 5px;
+        font-size: 0.8rem;
+    }
+
+    table {
+        font-size: 0.75rem;
+    }
+
+    tbody td {
+        padding: 6px;
+    }
+}
+
+/* Адаптивність для екранів шириною до 400px */
+@media (max-width: 400px) {
+    header h1 {
+        font-size: 0.9rem;
+    }
+
+    #themeToggle {
+        padding: 2px 4px;
+        font-size: 0.7rem;
+    }
+
+    table {
+        font-size: 0.7rem;
+    }
+
+    tbody td {
+        padding: 5px;
+    }
+}

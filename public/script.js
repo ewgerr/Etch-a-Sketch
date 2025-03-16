@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let paintedCellsCount = 0; // Лічильник зафарбованих клітинок
     let isEasterEggTriggered = false;
 
-    const userId = `user-${Math.random().toString(36).substr(2, 9)}`;
+    let userId = null;
     let gridSize = 50; // Розмір сітки (кількість клітинок в рядку або стовпці)
 
     let isRequestInProgress = false; // Флаг для перевірки активного запиту
@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.onmessage = (event) => {
         const update = JSON.parse(event.data);
 
-        // Оновлюємо конкретну клітинку
         const cell = document.getElementById(update.cellId);
         if (cell) {
             cell.style.backgroundColor = update.color;
@@ -85,8 +84,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!event.target.classList.contains('cell')) return;
 
         const currentTime = Date.now();
-        if (isRequestInProgress) {
-            alert('Зачекайте, поки попередній запит завершиться.');
+        if (isRequestInProgress || currentTime - lastRequestTime < 60000) {
+            const timeLeft = Math.ceil((60000 - (currentTime - lastRequestTime)) / 1000);
+            alert(`Зачекайте ${timeLeft} секунд перед наступним зафарбуванням.`);
             return;
         }
 
@@ -185,23 +185,42 @@ document.addEventListener('DOMContentLoaded', () => {
         return colors[Math.floor(Math.random() * colors.length)];
     }
 
+    async function fetchPaintedCells() {
+        try {
+            const response = await fetch('/painted-cells');
+            if (!response.ok) {
+                if (response.status === 401) {
+                    console.error('Користувач не авторизований');
+                    alert('Ви повинні увійти в систему, щоб переглянути кількість зафарбованих клітинок.');
+                }
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.paintedCells;
+        } catch (error) {
+            console.error('Error fetching painted cells count:', error);
+            return 0;
+        }
+    }
+
     async function init() {
         try {
             const sessionResponse = await fetch('/check-session');
             const sessionData = await sessionResponse.json();
 
             if (sessionData.loggedIn) {
-                usernameButton.textContent = sessionData.username;
+                usernameButton.textContent = sessionData.username; 
                 logoutButton.style.display = 'block';
+
+                paintedCellsCount = await fetchPaintedCells();
+                counterElement.textContent = `Зафарбовані клітинки: ${paintedCellsCount}`;
             } else {
                 usernameButton.textContent = 'Username';
                 logoutButton.style.display = 'none';
             }
 
-            // Створюємо сітку
             await createGrid(gridSize);
 
-            // Додаємо обробник кліків
             container.addEventListener('click', handleCellClick);
         } catch (error) {
             console.error('Error initializing app:', error);
@@ -215,27 +234,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (!container) {
+        console.error('Container element not found');
+        return;
+    }
+
     init();
 });
 
-async function handleCellClick(cellId, color, gridSize) {
-    const userId = 'exampleUserId'; 
-    try {
-        const response = await fetch('/paint', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ userId, cellId, color, gridSize }),
+fetch('/grid')
+    .then(response => response.json())
+    .then(data => {
+        data.forEach(cell => {
+            const cellElement = document.getElementById(cell.cell_id);
+            if (cellElement) {
+                cellElement.style.backgroundColor = cell.color;
+            }
         });
+    })
+    .catch(error => console.error('Error loading grid:', error));
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+    fetch('/leaderboard')
+    .then(response => response.json())
+    .then(data => {
+        const leaderboardElement = document.getElementById('leaderboard');
+        leaderboardElement.innerHTML = ''; 
 
-        const result = await response.json();
-        console.log(result.message);
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
+        data.forEach((entry, index) => {
+            const row = document.createElement('tr');
+
+            let rankClass = '';
+            if (index === 0) rankClass = 'gold';
+            else if (index === 1) rankClass = 'silver';
+            else if (index === 2) rankClass = 'bronze';
+
+            row.classList.add(rankClass);
+
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${entry.username}</td>
+                <td>${entry.painted_cells}</td>
+            `;
+            leaderboardElement.appendChild(row);
+        });
+    })
+    .catch(error => console.error('Error loading leaderboard:', error));
