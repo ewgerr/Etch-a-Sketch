@@ -460,3 +460,5 @@ async function handleCellClick(event) {
         isRequestInProgress = false;
     }
 }
+
+

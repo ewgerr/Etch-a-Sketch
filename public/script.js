@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutButton) {
         logoutButton.addEventListener('click', async () => {
             await fetch('/logout');
-            window.location.href = '/index.html';
+            window.location.href = 'users/login.html';
         });
     }
 
@@ -254,28 +254,29 @@ fetch('/grid')
     })
     .catch(error => console.error('Error loading grid:', error));
 
+document.addEventListener('DOMContentLoaded', () => {
     fetch('/leaderboard')
-    .then(response => response.json())
-    .then(data => {
-        const leaderboardElement = document.getElementById('leaderboard');
-        leaderboardElement.innerHTML = ''; 
+        .then(response => response.json())
+        .then(data => {
+            const leaderboardElement = document.getElementById('leaderboard');
+            if (leaderboardElement) {
+                leaderboardElement.innerHTML = '';
+                data.forEach((entry, index) => {
+                    const row = document.createElement('tr');
+                    if (index === 0) row.classList.add('gold');
+            else if (index === 1) row.classList.add('silver');
+            else if (index === 2) row.classList.add('bronze');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${entry.username}</td>
+                        <td>${entry.painted_cells}</td>
+                    `;
+                    leaderboardElement.appendChild(row);
+                });
+            } else {
+                console.error('Елемент з ID "leaderboard" не знайдено.');
+            }
+        })
+        .catch(error => console.error('Error loading leaderboard:', error));
+});
 
-        data.forEach((entry, index) => {
-            const row = document.createElement('tr');
-
-            let rankClass = '';
-            if (index === 0) rankClass = 'gold';
-            else if (index === 1) rankClass = 'silver';
-            else if (index === 2) rankClass = 'bronze';
-
-            row.classList.add(rankClass);
-
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${entry.username}</td>
-                <td>${entry.painted_cells}</td>
-            `;
-            leaderboardElement.appendChild(row);
-        });
-    })
-    .catch(error => console.error('Error loading leaderboard:', error));

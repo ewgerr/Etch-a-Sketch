@@ -5,10 +5,10 @@
     --input-border-color: #ccc;
     --input-invalid-border-color: #f01010;
     --input-valid-border-color: #28a745;
-    --button-background-color: #007bff;
-    --button-hover-background-color: #0056b3;
-    --link-background-color: #007bff;
-    --link-hover-background-color: #0056b3;
+    --button-background-color: #28a745;
+    --button-hover-background-color: #065f0c;
+    --link-background-color: #28a745;
+    --link-hover-background-color: #065f0c;
 }
 
 
@@ -55,6 +55,14 @@ h2 {
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+}
+
+.theme:hover {
+    background-color: var(--button-hover-background-color);
+}
+
+.theme:active {
+    transform: scale(0.95);
 }
 
 form {
@@ -142,11 +150,17 @@ button[type="submit"]:hover {
     background-color: var(--button-hover-background-color);
 }
 
+button[type="submit"]:active {
+    transform: scale(0.95);
+}
+
+
 .ger {
     display: inline-block;
     padding: 10px 20px;
     margin-top: 10px;
-    background-color: #110e0e91;
+    /* background-color: #110e0e91; */
+    background-color: #03300e;
     color: white;
     text-align: center;
     text-decoration: none;
@@ -155,7 +169,12 @@ button[type="submit"]:hover {
     font-size: 16px;
 }
 .ger:hover {
-    background-color: #110e0e;
+    /* background-color: #110e0e; */
+    background-color: #333;
+}
+
+.ger:active {
+    transform: scale(0.95);
 }
 
 .select {
@@ -175,6 +194,10 @@ button[type="submit"]:hover {
 
 .select:hover {
     background-color: var(--link-hover-background-color);
+}
+
+.select:active {
+    transform: scale(0.95);
 }
 
 @media (max-width: 600px) {

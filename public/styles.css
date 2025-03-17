@@ -1,38 +1,41 @@
 :root {
-    --background-color: #f0f0f0;
-    --text-color: #333;
+    --background-color: #f4f4f9;
+    --text-color: #fafafa;
     --input-background-color: #fff;
     --input-border-color: #ccc;
     --input-invalid-border-color: #f01010;
     --input-valid-border-color: #28a745;
-    --button-background-color: #007bff;
-    --button-hover-background-color: #0056b3;
-    --link-background-color: #007bff;
-    --link-hover-background-color: #0056b3;
+    --button-background-color: #4CAF50;
+    --button-hover-background-color: #45a049;
+    --link-background-color: #4CAF50;
+    --link-hover-background-color: #45a049;
     --container-background-color: #fff;
-    --container-border-color: #000;
-    --cell-border-color: #ccc;
-    --cell-hover-border-color: #000;
-    --hovered-background-color: #000;
+    --container-border-color: #ccc;
+    --cell-border-color: #ddd;
+    --cell-hover-border-color: #4CAF50;
+    --hovered-background-color: #f1f1f1;
     --painter-background-color: rgba(153, 147, 147, 0.611);
+    --box-shadow:  0 0 5px rgba(4, 211, 31, 0.57);
 }
 
 body.dark {
-    --background-color: #333;
-    --text-color: #f0f0f0;
-    --input-background-color: #444;
-    --input-border-color: #666;
+    --background-color: #121212;
+    --text-color: #e0e0e0;
+    --input-background-color: #1e1e1e;
+    --input-border-color: #444;
     --input-invalid-border-color: #ff4d4d;
     --input-valid-border-color: #4dff4d;
-    --button-background-color: #555;
-    --button-hover-background-color: #777;
-    --link-background-color: #555;
-    --link-hover-background-color: #777;
-    --container-background-color: #444;
+    --button-background-color: #333;
+    --button-hover-background-color: #555;
+    --link-background-color: #333;
+    --link-hover-background-color: #555;
+    --container-background-color: #1e1e1e;
     --container-border-color: #fff;
-    --cell-border-color: #666;
-    --cell-hover-border-color: #fff;
-    --hovered-background-color: #fff;
+    --cell-border-color: #444;
+    --cell-hover-border-color: #000000;
+    --hovered-background-color: #2a2a2a;
+    --painter-background-color: rgba(50, 50, 50, 0.8);
+    --box-shadow:  0 0 10px rgba(0, 0, 0, 0.751);
 }
 
 body {
@@ -42,18 +45,16 @@ body {
     justify-content: center;
     min-height: 100vh;
     margin: 0;
-    padding: 20px;
     background-color: var(--background-color);
     color: var(--text-color);
     font-family: 'Roboto', sans-serif;
     box-sizing: border-box;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 body.rainbow-theme {
-    animation: rainbowBackground 1s infinite;
+    animation: rainbowBackground 5s infinite;
 }
-
-
 
 @keyframes rainbowBackground {
     0% { background-color: #ff0000; }
@@ -97,39 +98,33 @@ body.rainbow-theme {
     }
 }
 
-/* .cell.rotate {
-    animation: rotate 2s linear infinite;
-}
-
-@keyframes rotate {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-} */
-
-
-
 header {
     display: flex;
     justify-content: space-between;
-    width: 100%;
-    padding: 10px 20px;
+    width: 98.5%;
+    padding: 10px;
     background-color: var(--button-background-color);
-    color: white;
+    color: var(--text-color);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, color 0.3s;
 }
-
+.bat{
+   display: flex;
+    justify-content:center;
+    gap: 1em;
+    width: 40%;
+    transition: background-color 0.3s, color 0.3s;
+}
 header .theme {
     background-color: var(--button-background-color);
-    border: 2px solid var(--button-hover-background-color);
-    color: white;
+    border: 2px solid var(--text-color);
+    color: var(--text-color);
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
-    padding: 10px 20px;
+    text-decoration: none;
+    text-align: center;
+    padding: 10px;
     border-radius: 5px;
     transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
@@ -140,10 +135,32 @@ header .theme:hover {
     transform: scale(1.1);
 }
 
+header .theme:active {
+    transform: scale(0.9);
+}
+
+header .theme1 {
+    display: none;
+    background-color: var(--button-background-color);
+    border: 2px solid var(--text-color);
+    color: var(--text-color);
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 10px;
+    border-radius: 5px;
+}
+header .theme1:active {
+    background-color: var(--button-hover-background-color);
+    transform: scale(0.9);
+}
+
+
 header .zag {
     font-size: 20px;
     font-weight: bold;
-    color: white;
+    color: var(--text-color);
     text-transform: uppercase;
 }
 
@@ -153,12 +170,12 @@ header .dropdown {
 
 header .dropbtn {
     background-color: var(--button-background-color);
-    border: 2px solid var(--button-hover-background-color);
-    color: white;
+    border: 2px solid var(--text-color);
+    color: var(--text-color);
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
-    padding: 10px 20px;
+    padding: 10px;
     border-radius: 5px;
     transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }
@@ -175,15 +192,16 @@ header .dropdown-content {
     right: 0;
     background-color: var(--input-background-color);
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
     border-radius: 5px;
     overflow: hidden;
 }
 
 header .dropdown-content a {
-    color: var(--text-color);
+    color: var(--link-background-color);
     padding: 12px 16px;
+    text-align: center;
     text-decoration: none;
     display: block;
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -191,7 +209,7 @@ header .dropdown-content a {
 
 header .dropdown-content a:hover {
     background-color: var(--button-hover-background-color);
-    color: white;
+    color: var(--text-color);
 }
 
 header .dropdown:hover .dropdown-content {
@@ -201,61 +219,41 @@ header .dropdown:hover .dropdown-content {
 main {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; 
     width: 100%;
     max-width: 1200px;
     margin-top: 20px;
+    gap: 20px; 
 }
-
-
-/* #container {
-    display: flex;
-    flex-wrap: wrap;
-    width: 70%;
-    max-width: 800px;
-    min-width: 300px;
-    aspect-ratio: 1 / 1;
-    border: 2px solid var(--container-border-color);
-    /* background-color: var(--container-background-color); 
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    overflow: hidden;
-} */
 
 #container {
     display: flex;
     flex-wrap: wrap;
-    width: auto;
+    width: 80%;
     height: auto;
     border: 2px solid var(--container-border-color);
-    background-color: var(--container-background-color); 
-    background-color: white;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: var(--text-color);
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    /* overflow: hidden; */
     overflow: auto;
-
 }
 
 .cell {
     box-sizing: border-box;
     border: 1px solid var(--cell-border-color);
-    transition: transform 0.3s ease, background-color 0.3s ease;
+    transition: transform 0.3s ease, background-color 0.3s ease, box-decoration-break 1.3s ease;
 }
 
 .cell:hover {
-    transform: scale(1.1);
+    transform: scale(1.3);
     border: 2px solid var(--cell-hover-border-color);
-}
-
-.cell.rotate {
-    animation: rotate 2s linear infinite;
+    box-sizing: border-box;
+    box-shadow: var(--box-shadow);
 }
 
 #paintedCellsCounter {
     background-color: var(--button-background-color);
-    color: white;
+    color: var(--text-color);
     font-weight: 500;
     font-size: 20px;
     padding: 8px;
@@ -265,44 +263,28 @@ main {
     text-align: center;
 }
 
-/* #colorPalette {
-    display: flex;
-    flex-direction: column; 
-    align-items: center;
-    justify-content: center;
-    width: 20%;
-    max-width: 200px;
-    margin-top: 20px;
-    padding: 40px;
-    margin-left: 20px;
-    background-color: var(--painter-background-color);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-} */
 
 #colorPalette {
-    position: fixed; /* Закріплює елемент у верхній частині */
-    top: 40px; /* Відступ від верхнього краю */
-    z-index: 10; /* Забезпечує, що елемент буде над іншими */
-    left: 20px;
-    top: 100px;
+    position: fixed; /* Фіксоване положення */
+    top: 100px; /* Відступ зверху */
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 20%;
-    max-width: 200px;
-    margin-top: 20px;
-    padding: 40px;
-    background-color: var(--painter-background-color);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+    flex-direction: column; /* Горизонтальне розташування кольорів */
+    justify-content: center; /* Центрування кольорів */
+    align-items: center; /* Вирівнювання по вертикалі *//* Займає всю ширину */
+    max-width: none;
+    left: 10px; /* Відступ зліва */
+    margin: 0 auto 10px auto; /* Відступ знизу */
+    padding: 8px; /* Внутрішні відступи */
+    background-color: var(--painter-background-color); /* Фон палітри */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тінь для відділення від контенту */
+    border-radius: 5px; /* Закруглені кути */
+    z-index: 1000; /* Забезпечує, що палітра буде над іншими елементами */
 }
 
 .color-swatch {
-    width: 40px;
+    width: 40px; /* Розмір кольорових квадратів */
     height: 40px;
-    margin: 5px;
+    margin: 5px; /* Відстань між кольорами */
     cursor: pointer;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -310,10 +292,9 @@ main {
 }
 
 .color-swatch:hover {
-    transform: scale(1.2);
+    transform: scale(1.2); /* Збільшення при наведенні */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
 .color-swatch.custom-color {
     display: flex;
     align-items: center;
@@ -363,7 +344,64 @@ main {
     padding: 0;
     border: none;
 }
-/* Загальні стилі для мобільних пристроїв */
+
+@media (max-width: 1440px) {
+
+    header {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+    }
+
+    header .zag {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    header .theme1 {
+        display:block;  
+    }
+
+    main {
+        flex-direction: column; 
+        align-items: center;
+        gap: 20px; 
+    }
+
+    #container {
+        width: 90%;
+        max-width: 1200px; 
+        margin: 0 auto; 
+        border: 2px solid var(--container-border-color);
+        background-color: var(--container-background-color);
+        box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        overflow: auto;
+    }
+
+    #colorPalette {
+        flex-direction: row; 
+        justify-content: center;
+        align-items: center;
+        left: -3000px;
+        width: 80%; 
+        max-width: none;
+        margin: 0 auto 10px auto;
+        padding: 8px;
+        top: 150px;
+    }
+
+    #colorPalette.open {
+        left: 0;
+     
+    }
+
+    .color-swatch {
+        width: 35px; 
+        height: 35px;
+        margin: 5px;
+    }
+}
 @media (max-width: 1024px) {
     header {
         flex-direction: column;
@@ -374,6 +412,10 @@ main {
     header .zag {
         margin-top: 10px;
         text-align: center;
+    }
+
+    header .theme1 {
+        display:block;  
     }
 
     main {
@@ -389,23 +431,24 @@ main {
         overflow: auto;
         touch-action: none;
         margin-top: 20px;
-        bottom: 200px;
     }
 
     #colorPalette {
-        position: static; /* Фіксуємо поле з кольорами внизу */
-        top: 200px;
-        bottom: 10; /* Розташовуємо його внизу екрана */
-        left: 0; /* Розтягуємо на всю ширину */
-        width: 40%; /* Займає всю ширину екрана */
-        max-width: none; /* Знімаємо обмеження ширини */
-        margin: 0; /* Прибираємо зовнішні відступи */
-        padding: 10px; /* Внутрішні відступи */
-        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1); /* Тінь для відділення від сітки */
-        background-color: var(--painter-background-color); /* Фон для видимості */
-        border-radius: 5; /* Прибираємо закруглення */
-        z-index: 10; /* Забезпечуємо, що поле буде над іншими елементами */
+        flex-direction: row; 
+        justify-content: center;
+        align-items: center;
+        left: -3000px;
+        width: 70%; 
+        max-width: none;
+        margin: 0 auto 10px auto;
+        padding: 8px;
+        top: 150px;
     }
+    #colorPalette.open {
+        left: 0;
+     
+    }
+
     .color-swatch {
         width: 30px;
         height: 30px;
@@ -413,7 +456,6 @@ main {
     }
 }
 
-/* Для планшетів у горизонтальній орієнтації */
 @media (max-width: 768px) and (orientation: landscape) {
     header {
         flex-direction: row;
@@ -426,10 +468,48 @@ main {
         text-align: left;
     }
 
+    header .theme1 {
+        display:block;  
+    }
+
     main {
-        flex-direction: row;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    #paintedCellsCounter {
+        background-color: var(--button-background-color);
+        color: var(--text-color);
+        font-weight: 300;
+        font-size: 16px;
+        padding: 8px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    #colorPalette {
+        flex-direction: row; 
         justify-content: center;
-        align-items: flex-start;
+        align-items: center;
+        left: -3000px;
+        width: 60%; 
+        max-width: none;
+        margin: 0 auto 10px auto;
+        padding: 8px;
+        top: 150px;
+    }
+
+    #colorPalette.open {
+        left: 0;
+     
+    }
+
+    .color-swatch {
+        width: 25px;
+        height: 25px;
+        margin: 5px;
     }
 
     #container {
@@ -440,34 +520,17 @@ main {
         overflow: auto;
         touch-action: none;
     }
-
-    #colorPalette {
-        position: static; /* Фіксуємо поле з кольорами внизу */
-        bottom: 0; /* Розташовуємо його внизу екрана */
-        left: 0; /* Розтягуємо на всю ширину */
-        width: 10%; /* Займає всю ширину екрана */
-        max-width: none; /* Знімаємо обмеження ширини */
-        margin: 0; /* Прибираємо зовнішні відступи */
-        padding: 10px; /* Внутрішні відступи */
-        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1); /* Тінь для відділення від сітки */
-        background-color: var(--painter-background-color); /* Фон для видимості */
-        border-radius: 0; /* Прибираємо закруглення */
-        z-index: 10; /* Забезпечуємо, що поле буде над іншими елементами */
-    }
-
-    .color-swatch {
-        width: 25px;
-        height: 25px;
-        margin: 3px;
-    }
 }
 
-/* Для смартфонів */
 @media (max-width: 480px) {
     header {
         flex-direction: column;
         align-items: center;
         padding: 5px;
+    }
+
+    header .theme1 {
+        display:block;  
     }
 
     header .zag {
@@ -481,6 +544,39 @@ main {
         margin-top: 10px;
     }
 
+    #paintedCellsCounter {
+        background-color: var(--button-background-color);
+        color: var(--text-color);
+        /* font-weight: 300; */
+        font-size: 13px;
+        padding: 4px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        text-align: center;
+    }
+
+    #colorPalette {
+        flex-direction: row; 
+        justify-content: center;
+        align-items: center;
+        left: -3000px;
+        width: 80%; 
+        max-width: none;
+        margin: 0 auto 10px auto;
+        padding: 8px;
+        top: 150px;
+    }
+
+    #colorPalette.open {
+        left: 0;
+     
+    }
+    .color-swatch {
+        width: 20px;
+        height: 20px;
+        margin: 3px;
+    }
+
     #container {
         width: 100%;
         max-width: 100%;
@@ -489,16 +585,227 @@ main {
         touch-action: none;
         margin-top: 10px;
     }
+}
+
+@media (max-width: 430px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        padding: 5px;
+    }
+
+    header .bat {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1em;
+        width: 40%;
+    }
+
+    header .theme, header .dropbtn, header .theme1 {
+        font-size: 16px;
+        padding: 5px 6px;
+    }
+
+    header .dropbtn {
+        font-size: 16px;
+        padding: 5px 10px;
+    }
+
+    header .theme1 {
+        display:block;  
+    }
+
+    header .zag {
+        margin-top: 5px;
+        text-align: center;
+    }
+
+    main {
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    #paintedCellsCounter {
+        background-color: var(--button-background-color);
+        color: var(--text-color);
+        font-size: 12px;
+        padding: 4px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        text-align: center;
+    }
 
     #colorPalette {
-        position:static;
-        bottom: 0;
-        width: 50%;
+        flex-direction: column; 
+        justify-content: center;
+        align-items: center;
+        left: -3000px;
+        width: 30%; 
         max-width: none;
-        margin: 0;
-        padding: 10px;
-        box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 0;
+        margin: 0 auto 10px auto;
+        padding: 8px;
+        top: 150px;
+    }
+
+    #colorPalette.open {
+        left: 0;
+     
+    }
+
+    .color-swatch {
+        width: 25px;
+        height: 25px;
+        margin: 3px;
+    }
+
+    #container {
+        width: 100%;
+        max-width: 100%;
+        min-width: 200px;
+        overflow: auto;
+        touch-action: none;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 370px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        padding: 5px;
+    }
+
+    header .bat {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1em;
+        width: 40%;
+    }
+
+ header .theme, header .dropbtn, header .theme1 {
+        font-size: 16px;
+        padding: 5px 5px;
+    }
+
+
+    header .theme1 {
+        display:block;  
+    }
+
+    header .zag {
+        font-size: 15px;
+        margin-top: 5px;
+        text-align: center;
+    }
+
+    main {
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    #paintedCellsCounter {
+        background-color: var(--button-background-color);
+        color: var(--text-color);
+        font-size: 11px;
+        padding: 3px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        text-align: center;
+    }
+
+    #colorPalette {
+        flex-direction: column; 
+        justify-content: center;
+        align-items: center;
+        left: -3000px;
+        width: 30%; 
+        max-width: none;
+        margin: 0 auto 10px auto;
+        padding: 8px;
+        top: 150px;
+    }
+
+    #colorPalette.open {
+        left: 0;
+     
+    }
+
+    .color-swatch {
+        width: 25px;
+        height: 25px;
+        margin: 2px;
+    }
+
+    #container {
+        width: 100%;
+        max-width: 100%;
+        min-width: 180px;
+        overflow: auto;
+        touch-action: none;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 320px) {
+    header {
+        flex-direction: column;
+        align-items: center;
+        padding: 5px;
+    }
+
+    header .bat {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1em;
+        width: 40%;
+    }
+
+    header .theme1 {
+        display:block;  
+    }
+
+    header .zag {
+        font-size: 15px;
+        margin-top: 5px;
+        text-align: center;
+    }
+
+    main {
+        flex-direction: column;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    #paintedCellsCounter {
+        background-color: var(--button-background-color);
+        color: var(--text-color);
+        font-size: 10px;
+        padding: 3px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+        text-align: center;
+    }
+
+    #colorPalette {
+        flex-direction: column; 
+        justify-content: center;
+        align-items: center;
+        left: -3000px;
+        width: 30%; 
+        max-width: none;
+        margin: 0 auto 10px auto;
+        padding: 8px;
+        top: 150px;
+    }
+
+    #colorPalette.open {
+        left: 0;
+     
     }
 
     .color-swatch {
@@ -506,9 +813,17 @@ main {
         height: 20px;
         margin: 2px;
     }
+
+    #container {
+        width: 100%;
+        max-width: 100%;
+        min-width: 150px;
+        overflow: auto;
+        touch-action: none;
+        margin-top: 10px;
+    }
 }
 
-/* Для великих екранів (2560px і більше) */
 @media (min-width: 2560px) {
     body {
         font-size: 1.5rem;
@@ -518,6 +833,7 @@ main {
     header {
         padding: 20px 40px;
         font-size: 1.5rem;
+        width: 100%;
     }
 
     header .theme, header .dropbtn {
@@ -542,7 +858,8 @@ main {
     }
 
     #colorPalette {
-        top: 250px;
+        top: 300px;
+        left: 100px;
         width: 25%;
         max-width: 400px;
         margin-left: 40px;
@@ -556,7 +873,6 @@ main {
     }
 }
 
-/* Для надвеликих екранів (3840px і більше) */
 @media (min-width: 3840px) {
     body {
         font-size: 2rem;
@@ -591,6 +907,8 @@ main {
 
     #colorPalette {
         width: 30%;
+        top: 300px;
+        left: 100px;
         max-width: 500px;
         margin-left: 50px;
         padding: 30px;

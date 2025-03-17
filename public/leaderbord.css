@@ -1,5 +1,4 @@
-/* Основні змінні кольорів */
-/* Основні змінні кольорів */
+
 :root {
     --background-color: #f4f4f9;
     --text-color: #333;
@@ -21,7 +20,7 @@
     --h-color:#28a745;
 }
 
-/* Темна тема */
+
 body.dark {
     --background-color: #121212;
     --text-color: #e0e0e0;
@@ -43,7 +42,7 @@ body.dark {
 }
 
 
-/* Загальні стилі */
+
 body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
@@ -111,9 +110,9 @@ h2 {
     margin-bottom: 20px;
 }
 
-/* Стилі для таблиці */
+
 table {
-    width: 100%;
+    width: 90%;
     border-collapse: collapse;
     margin: 0 auto;
     background-color: var(--container-background-color);
@@ -161,7 +160,7 @@ tbody td:last-child {
     text-align: right;
 }
 
-/* Стилі для перших трьох місць */
+
 tr.gold td:first-child {
     background: url('img/gold.png') no-repeat left center;
     background-size: 20px 20px;
@@ -185,14 +184,19 @@ tr.bronze td:first-child {
     font-weight: bold;
     color: #CD7F32;
 }
-/* Адаптивність */
+
 @media (max-width: 600px) {
-    table {
-        font-size: 0.8rem;
+    header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between; 
+        align-items: center; 
+        padding: 10px;
     }
 
     header h1 {
         font-size: 1.5rem;
+        margin-right: 10px; 
     }
 
     #themeToggle {
@@ -201,18 +205,18 @@ tr.bronze td:first-child {
     }
 }
 
-/* Адаптивність для екранів шириною до 1200px */
 @media (max-width: 1200px) {
-    main {
+    header {
+        display: flex;
+        flex-direction: row; 
+        justify-content: space-between;
+        align-items: center;
         padding: 15px;
-    }
-
-    table {
-        font-size: 0.9rem;
     }
 
     header h1 {
         font-size: 1.6rem;
+        margin-right: 15px;
     }
 
     #themeToggle {
@@ -221,48 +225,42 @@ tr.bronze td:first-child {
     }
 }
 
-/* Адаптивність для екранів шириною до 992px */
 @media (max-width: 992px) {
-    main {
+    header {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
         padding: 10px;
-    }
-
-    table {
-        font-size: 0.85rem;
     }
 
     header h1 {
         font-size: 1.4rem;
+        margin-right: 15px;
     }
 
     #themeToggle {
         padding: 4px 7px;
         font-size: 0.85rem;
     }
-
-    thead th {
-        font-size: 0.9rem;
-    }
-
-    tbody td {
-        padding: 10px;
-    }
 }
 
-/* Адаптивність для екранів шириною до 768px */
 @media (max-width: 768px) {
     header {
-        flex-direction: column;
-        align-items: flex-start;
+        display: flex;
+        flex-direction: row; 
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
     }
 
     header h1 {
         font-size: 1.2rem;
-        margin-bottom: 10px;
+        margin-right: 10px;
     }
 
     nav a {
-        margin-left: 0;
+        margin-left: 10px;
         margin-right: 10px;
     }
 
@@ -275,14 +273,18 @@ tr.bronze td:first-child {
     }
 }
 
-/* Адаптивність для екранів шириною до 576px */
 @media (max-width: 576px) {
     header {
+        display: flex;
+        flex-direction: row; 
+        justify-content: space-between;
+        align-items: center;
         padding: 10px;
     }
 
     header h1 {
         font-size: 1rem;
+        margin-right: 10px;
     }
 
     #themeToggle {
@@ -299,10 +301,18 @@ tr.bronze td:first-child {
     }
 }
 
-/* Адаптивність для екранів шириною до 400px */
 @media (max-width: 400px) {
+    header {
+        display: flex;
+        flex-direction: row; 
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px;
+    }
+
     header h1 {
         font-size: 0.9rem;
+        margin-right: 5px;
     }
 
     #themeToggle {
