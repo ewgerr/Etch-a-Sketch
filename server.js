@@ -383,17 +383,63 @@ const server = app.listen(PORT, () => {
 
 const wss = new WebSocket.Server({ server });
 
+const users = {}; // Зберігає підключених користувачів
+
 wss.on('connection', (ws) => {
     console.log('Client connected to WebSocket');
+
     ws.on('message', (message) => {
-        console.log('Received:', message);
+        try {
+            const data = JSON.parse(message);
+
+            if (data.type === 'register') {
+                users[data.username] = ws;
+                ws.username = data.username;
+                console.log(`User registered: ${data.username}`);
+            } else if (data.type === 'message') {
+                if (data.to) {
+                    const recipient = users[data.to];
+                    if (recipient) {
+                        // Отправляем сообщение получателю
+                        recipient.send(JSON.stringify({
+                            from: ws.username,
+                            message: data.message,
+                            private: true,
+                        }));
+                    } else {
+                        ws.send(JSON.stringify({
+                            error: `User ${data.to} is not online.`,
+                        }));
+                    }
+
+                    // Отправляем сообщение обратно отправителю
+                    ws.send(JSON.stringify({
+                        from: ws.username,
+                        message: data.message,
+                        private: true,
+                    }));
+                } else {
+                    // Групповое сообщение
+                    wss.clients.forEach((client) => {
+                        if (client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify({
+                                from: ws.username,
+                                message: data.message,
+                            }));
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error processing WebSocket message:', error);
+        }
     });
 
     ws.on('close', () => {
-        console.log('Client disconnected');
+        console.log(`User disconnected: ${ws.username}`);
+        delete users[ws.username];
     });
 });
-
 
 function broadcastGridUpdate(update) {
     wss.clients.forEach((client) => {

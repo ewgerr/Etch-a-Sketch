@@ -280,3 +280,16 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error loading leaderboard:', error));
 });
 
+async function updateUsername() {
+    const response = await fetch('/check-session');
+    const data = await response.json();
+
+    if (data.loggedIn) {
+        const usernameButton = document.getElementById('usernameButton');
+        usernameButton.textContent = data.username;
+    }
+}
+
+// Вызовите эту функцию при загрузке страницы
+updateUsername();
+

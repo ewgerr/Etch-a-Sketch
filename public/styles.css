@@ -271,26 +271,26 @@ main {
 
 
 #colorPalette {
-    position: fixed; /* Фіксоване положення */
-    top: 100px; /* Відступ зверху */
+    position: fixed;
+    top: 100px; 
     display: flex;
-    flex-direction: column; /* Горизонтальне розташування кольорів */
-    justify-content: center; /* Центрування кольорів */
-    align-items: center; /* Вирівнювання по вертикалі *//* Займає всю ширину */
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center; 
     max-width: none;
-    left: 10px; /* Відступ зліва */
-    margin: 0 auto 10px auto; /* Відступ знизу */
-    padding: 8px; /* Внутрішні відступи */
-    background-color: var(--painter-background-color); /* Фон палітри */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тінь для відділення від контенту */
-    border-radius: 5px; /* Закруглені кути */
-    z-index: 1000; /* Забезпечує, що палітра буде над іншими елементами */
+    left: 10px; 
+    margin: 0 auto 10px auto; 
+    padding: 8px;
+    background-color: var(--painter-background-color); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 5px; 
+    z-index: 1000; 
 }
 
 .color-swatch {
-    width: 40px; /* Розмір кольорових квадратів */
+    width: 40px;
     height: 40px;
-    margin: 5px; /* Відстань між кольорами */
+    margin: 5px;
     cursor: pointer;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -298,7 +298,7 @@ main {
 }
 
 .color-swatch:hover {
-    transform: scale(1.2); /* Збільшення при наведенні */
+    transform: scale(1.2);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .color-swatch.custom-color {
@@ -350,6 +350,42 @@ main {
     padding: 0;
     border: none;
 }
+
+
+/* Стилі для чату */
+#chatSection {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+#chatLog {
+    height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #fff;
+    color: #333;
+}
+
+#recipientInput,
+#messageInput {
+    width: calc(50% - 10px);
+    margin-right: 10px;
+    padding: 5px;
+    color: #333;
+}
+
+#sendButton {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+
 
 @media (max-width: 1440px) {
 
