@@ -23,6 +23,13 @@ socket.addEventListener('message', (event) => {
     const data = JSON.parse(event.data);
     const chatLog = document.getElementById('chatLog');
 
+    // Фільтр для повідомлень з undefined
+    if (!data.from || !data.message) {
+        console.warn('Отримано некоректне повідомлення:', data);
+        return;
+    }
+
+
     if (data.error) {
         alert(data.error);
     } else if (data.private) {
@@ -40,9 +47,49 @@ document.getElementById('sendButton').addEventListener('click', () => {
 
     socket.send(JSON.stringify({
         type: 'message',
+        to: recipient, // або null для групового повідомлення
+        //to: recipient || null 
         message,
-        to: recipient || null,
     }));
-
+      
     document.getElementById('messageInput').value = '';
+});
+
+ws.on('message', (message) => {
+    try {
+        const data = JSON.parse(message);
+
+        if (data.type === 'message') {
+            if (!ws.username || !data.message) {
+                console.error('Invalid message data:', data);
+                return;
+            }
+
+            if (data.to) {
+                const recipient = users[data.to];
+                if (recipient) {
+                    recipient.send(JSON.stringify({
+                        from: ws.username,
+                        message: data.message,
+                        private: true,
+                    }));
+                } else {
+                    ws.send(JSON.stringify({
+                        error: `User ${data.to} is not online.`,
+                    }));
+                }
+            } else {
+                wss.clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({
+                            from: ws.username,
+                            message: data.message,
+                        }));
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error processing WebSocket message:', error);
+    }
 });

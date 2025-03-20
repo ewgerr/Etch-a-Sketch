@@ -391,16 +391,25 @@ wss.on('connection', (ws) => {
     ws.on('message', (message) => {
         try {
             const data = JSON.parse(message);
+            console.log('Received message:', data);
+            console.log('Sender username:', ws.username);
 
             if (data.type === 'register') {
+                if (!data.username) {
+                    ws.send(JSON.stringify({ error: 'Username is required for registration.' }));
+                    return;
+                }
                 users[data.username] = ws;
                 ws.username = data.username;
                 console.log(`User registered: ${data.username}`);
             } else if (data.type === 'message') {
+                if (!ws.username || !data.message) {
+                    console.error('Invalid message data:', data);
+                    return;
+                }
                 if (data.to) {
                     const recipient = users[data.to];
                     if (recipient) {
-                        // Отправляем сообщение получателю
                         recipient.send(JSON.stringify({
                             from: ws.username,
                             message: data.message,
@@ -411,15 +420,12 @@ wss.on('connection', (ws) => {
                             error: `User ${data.to} is not online.`,
                         }));
                     }
-
-                    // Отправляем сообщение обратно отправителю
                     ws.send(JSON.stringify({
                         from: ws.username,
                         message: data.message,
                         private: true,
                     }));
                 } else {
-                    // Групповое сообщение
                     wss.clients.forEach((client) => {
                         if (client.readyState === WebSocket.OPEN) {
                             client.send(JSON.stringify({
