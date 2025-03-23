@@ -209,11 +209,7 @@ const gridFilePath = path.join(__dirname, 'public', 'grid.json');
 
 app.post('/paint', isAuthenticated, async (req, res) => {
     try {
-        const userId = req.session.userId; 
-        if (!userId) {
-            return res.status(401).json({ success: false, message: 'Користувач не автентифікований' });
-        }
-
+        const userId = req.session.userId;
         const { cellId, color, gridSize } = req.body;
 
         if (!cellId || !color || !gridSize) {
@@ -229,14 +225,16 @@ app.post('/paint', isAuthenticated, async (req, res) => {
                  ON CONFLICT(cell_id, grid_size) 
                  DO UPDATE SET color = ?, user_id = ?`,
                 [cellId, color, gridSize, userId, color, userId],
-                (err) => {
+                async (err) => {
                     if (err) {
                         console.error('Error updating grid:', err);
                         return res.status(500).json({ success: false, message: 'Internal server error' });
                     }
 
                     userLastPaintTime[userId] = currentTime;
-                    console.log(`Користувач ${userId} зафарбував клітинку ${cellId} кольором ${color}`);
+
+                    // Оновлення досягнень
+                    await updateAchievements(userId);
 
                     broadcastGridUpdate({ cellId, color });
 
@@ -246,11 +244,10 @@ app.post('/paint', isAuthenticated, async (req, res) => {
         } else {
             const timeLeft = 60000 - (currentTime - userLastPaintTime[userId]);
             const secondsLeft = Math.ceil(timeLeft / 1000);
-            console.log(`Користувач ${userId} намагається зафарбувати клітинку ${cellId} занадто швидко. Залишилось ${secondsLeft} секунд.`);
             res.status(429).json({
                 success: false,
                 message: `Почекайте ${secondsLeft} секунд перед наступним зафарбуванням.`,
-                timeLeft: secondsLeft
+                timeLeft: secondsLeft,
             });
         }
     } catch (error) {
@@ -367,6 +364,109 @@ app.get('/painted-cells', isAuthenticated, async (req, res) => {
         res.status(200).json({ paintedCells: result[0].painted_cells });
     } catch (error) {
         console.error('Error fetching painted cells count:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/stats', isAuthenticated, async (req, res) => {
+    try {
+        const totalCellsQuery = `
+            SELECT COUNT(*) AS total_cells FROM grid
+        `;
+        const popularColorQuery = `
+            SELECT color, COUNT(color) AS count
+            FROM grid
+            GROUP BY color
+            ORDER BY count DESC
+            LIMIT 1
+        `;
+        const topUsersQuery = `
+            SELECT u.username, COUNT(g.cell_id) AS painted_cells
+            FROM users u
+            LEFT JOIN grid g ON u.id = g.user_id
+            GROUP BY u.username
+            ORDER BY painted_cells DESC
+            LIMIT 3
+        `;
+
+        const totalCellsResult = await queryDatabase(totalCellsQuery);
+        const popularColorResult = await queryDatabase(popularColorQuery);
+        const topUsersResult = await queryDatabase(topUsersQuery);
+
+        res.status(200).json({
+            totalCells: totalCellsResult[0]?.total_cells || 0,
+            popularColor: popularColorResult[0]?.color || 'N/A',
+            topUsers: topUsersResult.map(user => user.username),
+        });
+    } catch (error) {
+        console.error('Error fetching stats:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/achievements', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+
+        const query = `
+            SELECT painted_100_cells, used_all_colors, spent_one_hour
+            FROM achievements
+            WHERE user_id = ?
+        `;
+        const result = await queryDatabase(query, [userId]);
+
+        if (result.length === 0) {
+            return res.status(404).json({ error: 'Achievements not found for user' });
+        }
+
+        res.status(200).json(result[0]);
+    } catch (error) {
+        console.error('Error fetching achievements:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/user-stats/:username', async (req, res) => {
+    try {
+        const { username } = req.params;
+
+        const userQuery = `
+            SELECT id FROM users WHERE username = ?
+        `;
+        const userResult = await queryDatabase(userQuery, [username]);
+
+        if (userResult.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const userId = userResult[0].id;
+
+        const statsQuery = `
+            SELECT COUNT(*) AS painted_cells, 
+                   (SELECT color FROM grid WHERE user_id = ? GROUP BY color ORDER BY COUNT(color) DESC LIMIT 1) AS popular_color
+            FROM grid
+            WHERE user_id = ?
+        `;
+        const statsResult = await queryDatabase(statsQuery, [userId, userId]);
+
+        const achievementsQuery = `
+            SELECT painted_100_cells, used_all_colors, spent_one_hour
+            FROM achievements
+            WHERE user_id = ?
+        `;
+        const achievementsResult = await queryDatabase(achievementsQuery, [userId]);
+
+        res.status(200).json({
+            paintedCells: statsResult[0]?.painted_cells || 0,
+            popularColor: statsResult[0]?.popular_color || 'N/A',
+            achievements: achievementsResult[0] || {
+                painted_100_cells: false,
+                used_all_colors: false,
+                spent_one_hour: false,
+            },
+        });
+    } catch (error) {
+        console.error('Error fetching user stats:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -510,6 +610,58 @@ async function handleCellClick(event) {
         alert('Сталася помилка. Спробуйте ще раз.');
     } finally {
         isRequestInProgress = false;
+    }
+}
+
+async function updateAchievements(userId) {
+    try {
+        // Перевірка досягнення "Зафарбувати 100 клітинок"
+        const paintedCellsQuery = `
+            SELECT COUNT(*) AS painted_cells
+            FROM grid
+            WHERE user_id = ?
+        `;
+        const paintedCellsResult = await queryDatabase(paintedCellsQuery, [userId]);
+        const painted100Cells = paintedCellsResult[0]?.painted_cells >= 100;
+
+        // Перевірка досягнення "Використати всі доступні кольори"
+        const usedColorsQuery = `
+            SELECT DISTINCT color
+            FROM grid
+            WHERE user_id = ?
+        `;
+        const usedColorsResult = await queryDatabase(usedColorsQuery, [userId]);
+        const allColors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+        const usedAllColors = allColors.every(color =>
+            usedColorsResult.some(row => row.color === color)
+        );
+
+        // Перевірка досягнення "Провести 1 годину на сайті"
+        const sessionStartTime = req.session.startTime || Date.now();
+        const elapsedTime = (Date.now() - sessionStartTime) / (1000 * 60 * 60); // Час у годинах
+        const spentOneHour = elapsedTime >= 1;
+
+        // Оновлення досягнень у базі даних
+        const updateQuery = `
+            INSERT INTO achievements (user_id, painted_100_cells, used_all_colors, spent_one_hour)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(user_id)
+            DO UPDATE SET
+                painted_100_cells = ?,
+                used_all_colors = ?,
+                spent_one_hour = ?
+        `;
+        await queryDatabase(updateQuery, [
+            userId,
+            painted100Cells,
+            usedAllColors,
+            spentOneHour,
+            painted100Cells,
+            usedAllColors,
+            spentOneHour,
+        ]);
+    } catch (error) {
+        console.error('Error updating achievements:', error);
     }
 }
 

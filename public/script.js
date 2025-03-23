@@ -263,9 +263,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 leaderboardElement.innerHTML = '';
                 data.forEach((entry, index) => {
                     const row = document.createElement('tr');
+                    row.dataset.username = entry.username; // Додаємо data-username
                     if (index === 0) row.classList.add('gold');
-            else if (index === 1) row.classList.add('silver');
-            else if (index === 2) row.classList.add('bronze');
+                    else if (index === 1) row.classList.add('silver');
+                    else if (index === 2) row.classList.add('bronze');
                     row.innerHTML = `
                         <td>${index + 1}</td>
                         <td>${entry.username}</td>
@@ -293,3 +294,247 @@ async function updateUsername() {
 // Вызовите эту функцию при загрузке страницы
 updateUsername();
 
+// Дані для прикладу (можуть бути замінені на реальні дані з сервера)
+let userStats = {
+    totalCells: 0,
+    popularColor: 'N/A',
+    topUsers: [],
+    achievements: {
+        painted100Cells: false,
+        usedAllColors: false,
+        spentOneHour: false,
+    },
+};
+
+// Масив для відстеження використаних кольорів
+let usedColors = new Set();
+let sessionStartTime = Date.now();
+
+// Оновлення статистики
+function updateStatistics() {
+    document.getElementById('totalCells').textContent = userStats.totalCells;
+
+    // Оновлення кольорового квадратика
+    const popularColorElement = document.getElementById('popularColor');
+    popularColorElement.style.backgroundColor = userStats.popularColor || 'transparent';
+}
+
+// Оновлення досягнень
+function updateAchievements() {
+    document.getElementById('achievement100').textContent = userStats.achievements.painted100Cells ? 'Так' : 'Ні';
+    document.getElementById('achievementColors').textContent = userStats.achievements.usedAllColors ? 'Так' : 'Ні';
+    document.getElementById('achievementTime').textContent = userStats.achievements.spentOneHour ? 'Так' : 'Ні';
+}
+
+// Перевірка досягнень
+function checkAchievements() {
+    // Досягнення: Зафарбувати 100 клітинок
+    if (userStats.totalCells >= 100) {
+        userStats.achievements.painted100Cells = true;
+    }
+
+    // Досягнення: Використати всі доступні кольори
+    const allColors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']; // Приклад кольорів
+    if (allColors.every(color => usedColors.has(color))) {
+        userStats.achievements.usedAllColors = true;
+    }
+
+    // Досягнення: Провести 1 годину на сайті
+    const elapsedTime = (Date.now() - sessionStartTime) / (1000 * 60); // Час у хвилинах
+    if (elapsedTime >= 60) {
+        userStats.achievements.spentOneHour = true;
+    }
+
+    updateAchievements();
+}
+
+// Оновлення популярного кольору
+function updatePopularColor(newColor) {
+    // Логіка для визначення найпопулярнішого кольору (можна замінити на серверну)
+    const colorCounts = {};
+    usedColors.forEach(color => {
+        colorCounts[color] = (colorCounts[color] || 0) + 1;
+    });
+    colorCounts[newColor] = (colorCounts[newColor] || 0) + 1;
+
+    userStats.popularColor = Object.keys(colorCounts).reduce((a, b) =>
+        colorCounts[a] > colorCounts[b] ? a : b
+    );
+}
+
+// Оновлення статистики після кліку на клітинку
+async function handleCellClick(event) {
+    if (!event.target.classList.contains('cell')) return;
+
+    const cell = event.target;
+    const cellId = cell.id;
+    const color = colorPicker.value;
+
+    try {
+        const response = await fetch('/paint', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, cellId, color, gridSize }),
+        });
+
+        if (response.ok) {
+            cell.style.backgroundColor = color;
+
+            // Оновлення статистики
+            userStats.totalCells++;
+            usedColors.add(color);
+            updatePopularColor(color);
+
+            // Перевірка досягнень
+            checkAchievements();
+
+            // Оновлення статистики на сторінці
+            updateStatistics();
+        } else {
+            console.error('Помилка при зафарбуванні клітинки');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Ініціалізація статистики та досягнень
+async function initStatisticsAndAchievements() {
+    try {
+        const statsResponse = await fetch('/stats');
+        const statsData = await statsResponse.json();
+
+        userStats.totalCells = statsData.totalCells || 0;
+        userStats.popularColor = statsData.popularColor || 'N/A';
+        userStats.topUsers = statsData.topUsers || [];
+        userStats.achievements = statsData.achievements || {
+            painted100Cells: false,
+            usedAllColors: false,
+            spentOneHour: false,
+        };
+
+        userStats.topUsers = statsData.topUsers || [];
+
+        updateStatistics();
+        updateAchievements();
+    } catch (error) {
+        console.error('Error initializing statistics and achievements:', error);
+    }
+}
+
+// Виклик функцій після завантаження сторінки
+document.addEventListener('DOMContentLoaded', () => {
+    initStatisticsAndAchievements();
+    container.addEventListener('click', handleCellClick);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const leaderboardElement = document.getElementById('leaderboard');
+    const userStatsPopup = document.createElement('div');
+    userStatsPopup.id = 'userStatsPopup';
+    userStatsPopup.style.position = 'absolute';
+    userStatsPopup.style.display = 'none';
+    userStatsPopup.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    userStatsPopup.style.color = 'white';
+    userStatsPopup.style.padding = '10px';
+    userStatsPopup.style.borderRadius = '5px';
+    userStatsPopup.style.zIndex = '1000';
+    document.body.appendChild(userStatsPopup);
+
+    leaderboardElement.addEventListener('mouseover', async (event) => {
+        const row = event.target.closest('tr');
+        if (!row || !row.dataset.username) return;
+
+        const username = row.dataset.username;
+
+        try {
+            const response = await fetch(`/user-stats/${username}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch user stats');
+            }
+
+            const stats = await response.json();
+
+            userStatsPopup.innerHTML = `
+                <strong>${username}</strong><br>
+                Статистика:<br>
+                Зафарбовані клітинки: ${stats.paintedCells}<br>
+                Найпопулярніший колір: 
+                <span style="
+                    display: inline-block;
+                    width: 20px;
+                    height: 20px;
+                    background-color: ${stats.popularColor};
+                    border: 1px solid #fff;
+                    vertical-align: middle;
+                "></span><br>
+                Досягнення:<br>
+                - Зафарбувати 100 клітинок: ${stats.achievements.painted_100_cells ? 'Так' : 'Ні'}<br>
+                - Використати всі доступні кольори: ${stats.achievements.used_all_colors ? 'Так' : 'Ні'}<br>
+                - Провести 1 годину на сайті: ${stats.achievements.spent_one_hour ? 'Так' : 'Ні'}
+            `;
+            userStatsPopup.style.display = 'block';
+        } catch (error) {
+            console.error('Error fetching user stats:', error);
+        }
+    });
+
+    leaderboardElement.addEventListener('mousemove', (event) => {
+        userStatsPopup.style.top = `${event.pageY + 10}px`;
+        userStatsPopup.style.left = `${event.pageX + 10}px`;
+    });
+
+    leaderboardElement.addEventListener('mouseout', () => {
+        userStatsPopup.style.display = 'none';
+    });
+});
+
+let sessionStartTimer = Date.now(); // Час початку сесії
+
+// Функція для форматування часу у вигляді "години:хвилини:секунди"
+function formatTime(milliseconds) {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Функція для оновлення часу на сторінці
+function updateTotalTime() {
+    const elapsedTime = Date.now() - sessionStartTimer; // Час, проведений на сайті
+    const totalTimeElement = document.getElementById('totalTime');
+    totalTimeElement.textContent = formatTime(elapsedTime);
+}
+
+// Запуск оновлення часу кожну секунду
+setInterval(updateTotalTime, 1000);
+
+// Виклик функції для початкового оновлення
+document.addEventListener('DOMContentLoaded', () => {
+    updateTotalTime();
+});
+
+app.get('/stats', isAuthenticated, async (req, res) => {
+    try {
+        const topUsersQuery = `
+            SELECT u.username, COUNT(g.cell_id) AS painted_cells
+            FROM users u
+            LEFT JOIN grid g ON u.id = g.user_id
+            GROUP BY u.username
+            ORDER BY painted_cells DESC
+            LIMIT 3
+        `;
+
+        const topUsersResult = await queryDatabase(topUsersQuery);
+
+        res.status(200).json({
+            topUsers: topUsersResult.map(user => user.username),
+            // Інші дані статистики
+        });
+    } catch (error) {
+        console.error('Error fetching stats:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});

@@ -39,6 +39,30 @@ db.serialize(() => {
         if (err) console.error('Error creating index on users table:', err);
         else console.log('Index on users table created successfully');
     });
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS achievements (
+            user_id INTEGER PRIMARY KEY,
+            painted_100_cells BOOLEAN DEFAULT 0,
+            used_all_colors BOOLEAN DEFAULT 0,
+            spent_one_hour BOOLEAN DEFAULT 0,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    `, (err) => {
+        if (err) console.error('Error creating achievements table:', err);
+        else console.log('Achievements table initialized');
+    });
+
+    db.run(`
+        CREATE TABLE IF NOT EXISTS user_time (
+            user_id INTEGER PRIMARY KEY,
+            total_time INTEGER DEFAULT 0,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    `, (err) => {
+        if (err) console.error('Error creating user_time table:', err);
+        else console.log('User time table initialized');
+    });
 });
 
 db.close((err) => {

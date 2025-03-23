@@ -185,6 +185,30 @@ tr.bronze td:first-child {
     color: #CD7F32;
 }
 
+section {
+    margin: 20px 0;
+}
+
+section h2 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul li {
+    margin: 5px 0;
+}
+
+#userStatsPopup {
+    font-size: 0.9em;
+    max-width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 @media (max-width: 600px) {
     header {
         display: flex;
