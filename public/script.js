@@ -309,6 +309,18 @@ let userStats = {
 // Масив для відстеження використаних кольорів
 let usedColors = new Set();
 let sessionStartTime = Date.now();
+let totalElapsedTime = 0; // Загальний час, отриманий із сервера
+
+async function loadTotalTime() {
+    try {
+        const response = await fetch('/get-time');
+        const data = await response.json();
+        totalElapsedTime = data.totalTime || 0; // Час у мілісекундах
+        updateTotalTime();
+    } catch (error) {
+        console.error('Error loading total time:', error);
+    }
+}
 
 // Оновлення статистики
 function updateStatistics() {
@@ -503,9 +515,9 @@ function formatTime(milliseconds) {
 
 // Функція для оновлення часу на сторінці
 function updateTotalTime() {
-    const elapsedTime = Date.now() - sessionStartTimer; // Час, проведений на сайті
+    const elapsedTime = Date.now() - sessionStartTime; // Час поточної сесії
     const totalTimeElement = document.getElementById('totalTime');
-    totalTimeElement.textContent = formatTime(elapsedTime);
+    totalTimeElement.textContent = formatTime(totalElapsedTime + elapsedTime);
 }
 
 // Запуск оновлення часу кожну секунду
@@ -516,25 +528,24 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTotalTime();
 });
 
-app.get('/stats', isAuthenticated, async (req, res) => {
+async function saveTotalTime() {
+    const elapsedTime = Date.now() - sessionStartTime; // Час поточної сесії
     try {
-        const topUsersQuery = `
-            SELECT u.username, COUNT(g.cell_id) AS painted_cells
-            FROM users u
-            LEFT JOIN grid g ON u.id = g.user_id
-            GROUP BY u.username
-            ORDER BY painted_cells DESC
-            LIMIT 3
-        `;
-
-        const topUsersResult = await queryDatabase(topUsersQuery);
-
-        res.status(200).json({
-            topUsers: topUsersResult.map(user => user.username),
-            // Інші дані статистики
+        await fetch('/update-time', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ elapsedTime }),
         });
     } catch (error) {
-        console.error('Error fetching stats:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error saving total time:', error);
     }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadTotalTime(); // Завантаження часу з сервера
+    setInterval(updateTotalTime, 1000); // Оновлення часу кожну секунду
+});
+
+window.addEventListener('beforeunload', () => {
+    saveTotalTime(); // Збереження часу перед закриттям сторінки
 });

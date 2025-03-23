@@ -471,6 +471,44 @@ app.get('/user-stats/:username', async (req, res) => {
     }
 });
 
+app.post('/update-time', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const { elapsedTime } = req.body; // Час у мілісекундах
+
+        const query = `
+            INSERT INTO user_time (user_id, total_time)
+            VALUES (?, ?)
+            ON CONFLICT(user_id)
+            DO UPDATE SET total_time = total_time + ?
+        `;
+        await queryDatabase(query, [userId, elapsedTime, elapsedTime]);
+
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('Error updating user time:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/get-time', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+
+        const query = `
+            SELECT total_time
+            FROM user_time
+            WHERE user_id = ?
+        `;
+        const result = await queryDatabase(query, [userId]);
+
+        res.status(200).json({ totalTime: result[0]?.total_time || 0 });
+    } catch (error) {
+        console.error('Error fetching user time:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 app.use(express.static(path.join(__dirname, 'public'), {
     setHeaders: (res, filePath) => {
         console.log(`Serving file: ${filePath}`);
