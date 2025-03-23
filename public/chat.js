@@ -48,7 +48,6 @@ document.getElementById('sendButton').addEventListener('click', () => {
     socket.send(JSON.stringify({
         type: 'message',
         to: recipient, // або null для групового повідомлення
-        //to: recipient || null 
         message,
     }));
       

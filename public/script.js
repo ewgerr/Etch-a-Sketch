@@ -332,11 +332,54 @@ function updateStatistics() {
 }
 
 // Оновлення досягнень
-function updateAchievements() {
-    document.getElementById('achievement100').textContent = userStats.achievements.painted100Cells ? 'Так' : 'Ні';
-    document.getElementById('achievementColors').textContent = userStats.achievements.usedAllColors ? 'Так' : 'Ні';
-    document.getElementById('achievementTime').textContent = userStats.achievements.spentOneHour ? 'Так' : 'Ні';
+async function updateAchievements() {
+    try {
+        const response = await fetch('/achievements');
+        const data = await response.json();
+
+        // Зафарбувати 100 клітинок
+        const achievement100 = data.achievements.painted100Cells;
+        document.getElementById('achievement100').textContent = achievement100.completed ? 'Так' : `Залишилось: ${achievement100.remaining}`;
+        document.getElementById('progress100').style.width = `${achievement100.progress}%`;
+
+        // Зафарбувати 500 клітинок
+        const achievement500 = data.achievements.painted500Cells;
+        document.getElementById('achievement500').textContent = achievement500.completed ? 'Так' : `Залишилось: ${achievement500.remaining}`;
+        document.getElementById('progress500').style.width = `${achievement500.progress}%`;
+
+        // Зафарбувати 1000 клітинок
+        const achievement1000 = data.achievements.painted1000Cells;
+        document.getElementById('achievement1000').textContent = achievement1000.completed ? 'Так' : `Залишилось: ${achievement1000.remaining}`;
+        document.getElementById('progress1000').style.width = `${achievement1000.progress}%`;
+
+        // Використати 3 різні кольори
+        const achievement3Colors = data.achievements.used3Colors;
+        document.getElementById('achievement3Colors').textContent = achievement3Colors.completed ? 'Так' : `Залишилось: ${achievement3Colors.remaining}`;
+        document.getElementById('progress3Colors').style.width = `${achievement3Colors.progress}%`;
+
+        // Використати 10 різних кольорів
+        const achievement10Colors = data.achievements.used10Colors;
+        document.getElementById('achievement10Colors').textContent = achievement10Colors.completed ? 'Так' : `Залишилось: ${achievement10Colors.remaining}`;
+        document.getElementById('progress10Colors').style.width = `${achievement10Colors.progress}%`;
+
+        // Провести 1 годину на сайті
+        const achievementTime1 = data.achievements.spentOneHour;
+        document.getElementById('achievementTime1').textContent = achievementTime1.completed ? 'Так' : `Залишилось: ${Math.ceil(achievementTime1.remaining / 60000)} хв`;
+        document.getElementById('progressTime1').style.width = `${achievementTime1.progress}%`;
+
+        // Провести 2 години на сайті
+        const achievementTime2 = data.achievements.spentTwoHours;
+        document.getElementById('achievementTime2').textContent = achievementTime2.completed ? 'Так' : `Залишилось: ${Math.ceil(achievementTime2.remaining / 60000)} хв`;
+        document.getElementById('progressTime2').style.width = `${achievementTime2.progress}%`;
+    } catch (error) {
+        console.error('Error updating achievements:', error);
+    }
 }
+
+// Виклик функції після завантаження сторінки
+document.addEventListener('DOMContentLoaded', () => {
+    updateAchievements();
+});
 
 // Перевірка досягнень
 function checkAchievements() {
@@ -467,6 +510,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const stats = await response.json();
 
+            // Форматування часу
+            const formattedTime = formatTime(stats.totalTime || 0);
+
             userStatsPopup.innerHTML = `
                 <strong>${username}</strong><br>
                 Статистика:<br>
@@ -480,6 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     border: 1px solid #fff;
                     vertical-align: middle;
                 "></span><br>
+                Загальний час на сайті: ${formattedTime}<br>
                 Досягнення:<br>
                 - Зафарбувати 100 клітинок: ${stats.achievements.painted_100_cells ? 'Так' : 'Ні'}<br>
                 - Використати всі доступні кольори: ${stats.achievements.used_all_colors ? 'Так' : 'Ні'}<br>
@@ -501,6 +548,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Функція для форматування часу у вигляді "години:хвилини:секунди"
+function formatTime(milliseconds) {
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+
 let sessionStartTimer = Date.now(); // Час початку сесії
 
 // Функція для форматування часу у вигляді "години:хвилини:секунди"
@@ -517,7 +574,11 @@ function formatTime(milliseconds) {
 function updateTotalTime() {
     const elapsedTime = Date.now() - sessionStartTime; // Час поточної сесії
     const totalTimeElement = document.getElementById('totalTime');
-    totalTimeElement.textContent = formatTime(totalElapsedTime + elapsedTime);
+    if (totalTimeElement) {
+        totalTimeElement.textContent = formatTime(totalElapsedTime + elapsedTime);
+    } else {
+        console.error('Елемент totalTime не знайдено');
+    }
 }
 
 // Запуск оновлення часу кожну секунду

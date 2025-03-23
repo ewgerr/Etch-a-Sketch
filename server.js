@@ -408,18 +408,74 @@ app.get('/achievements', isAuthenticated, async (req, res) => {
     try {
         const userId = req.session.userId;
 
-        const query = `
-            SELECT painted_100_cells, used_all_colors, spent_one_hour
-            FROM achievements
+        // Загальна кількість зафарбованих клітинок
+        const paintedCellsQuery = `
+            SELECT COUNT(*) AS painted_cells
+            FROM grid
             WHERE user_id = ?
         `;
-        const result = await queryDatabase(query, [userId]);
+        const paintedCellsResult = await queryDatabase(paintedCellsQuery, [userId]);
+        const paintedCells = paintedCellsResult[0]?.painted_cells || 0;
 
-        if (result.length === 0) {
-            return res.status(404).json({ error: 'Achievements not found for user' });
-        }
+        // Використані кольори
+        const usedColorsQuery = `
+            SELECT DISTINCT color
+            FROM grid
+            WHERE user_id = ?
+        `;
+        const usedColorsResult = await queryDatabase(usedColorsQuery, [userId]);
+        const allColors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+        const usedColors = usedColorsResult.map(row => row.color);
+        const usedColorsCount = usedColors.length;
 
-        res.status(200).json(result[0]);
+        // Загальний час, проведений на сайті
+        const timeQuery = `
+            SELECT total_time
+            FROM user_time
+            WHERE user_id = ?
+        `;
+        const timeResult = await queryDatabase(timeQuery, [userId]);
+        const totalTime = timeResult[0]?.total_time || 0; // У мілісекундах
+
+        res.status(200).json({
+            achievements: {
+                painted100Cells: {
+                    completed: paintedCells >= 100,
+                    progress: Math.min((paintedCells / 100) * 100, 100),
+                    remaining: Math.max(100 - paintedCells, 0),
+                },
+                painted500Cells: {
+                    completed: paintedCells >= 500,
+                    progress: Math.min((paintedCells / 500) * 100, 100),
+                    remaining: Math.max(500 - paintedCells, 0),
+                },
+                painted1000Cells: {
+                    completed: paintedCells >= 1000,
+                    progress: Math.min((paintedCells / 1000) * 100, 100),
+                    remaining: Math.max(1000 - paintedCells, 0),
+                },
+                used3Colors: {
+                    completed: usedColorsCount >= 3,
+                    progress: Math.min((usedColorsCount / 3) * 100, 100),
+                    remaining: Math.max(3 - usedColorsCount, 0),
+                },
+                used10Colors: {
+                    completed: usedColorsCount >= 10,
+                    progress: Math.min((usedColorsCount / 10) * 100, 100),
+                    remaining: Math.max(10 - usedColorsCount, 0),
+                },
+                spentOneHour: {
+                    completed: totalTime >= 3600000, // 1 година = 3600000 мс
+                    progress: Math.min((totalTime / 3600000) * 100, 100),
+                    remaining: Math.max(3600000 - totalTime, 0),
+                },
+                spentTwoHours: {
+                    completed: totalTime >= 7200000, // 2 години = 7200000 мс
+                    progress: Math.min((totalTime / 7200000) * 100, 100),
+                    remaining: Math.max(7200000 - totalTime, 0),
+                },
+            },
+        });
     } catch (error) {
         console.error('Error fetching achievements:', error);
         res.status(500).json({ error: 'Internal server error' });
