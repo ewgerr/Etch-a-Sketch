@@ -372,8 +372,15 @@ main {
     color: #333;
 }
 
-#recipientInput,
 #messageInput {
+    
+    width: calc(50% - 10px);
+    margin-right: 10px;
+    padding: 5px;
+    color: #333;
+}
+#recipientInput{
+    display: none;
     width: calc(50% - 10px);
     margin-right: 10px;
     padding: 5px;
