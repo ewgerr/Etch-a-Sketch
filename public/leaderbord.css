@@ -40,7 +40,10 @@ body.dark {
     --h-color:#ffffff;
 }
 
-
+*{
+    scrollbar-width:initial;
+    scrollbar-color: var(--h-color) var(--background-color);
+}
 
 body {
     font-family: 'Roboto', sans-serif;
