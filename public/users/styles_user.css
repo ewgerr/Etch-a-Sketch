@@ -42,6 +42,7 @@ body {
 
 h2 {
     margin-bottom: 20px;
+    color: var(--input-valid-border-color);
 }
 .theme {
     position: absolute;
@@ -79,7 +80,10 @@ form {
 label {
     display: block;
     margin-bottom: 5px;
+    color: var(--input-valid-border-color);
 }
+
+
 
 input[type="text"],
 input[type="password"] {
