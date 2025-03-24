@@ -2,7 +2,6 @@ const socket = new WebSocket(`ws://${window.location.host}`);
 
 socket.addEventListener('open', async () => {
     try {
-        // Запит імені користувача з сервера
         const response = await fetch('/check-session');
         const data = await response.json();
 
@@ -24,27 +23,23 @@ socket.addEventListener('message', (event) => {
         const data = JSON.parse(event.data);
         const chatLog = document.getElementById('chatLog');
 
-        // Фільтр для некоректних повідомлень
         if (!data.from || !data.message) {
             console.warn('Отримано некоректне повідомлення:', data);
             return;
         }
 
-        // Обробка помилок
         if (data.error) {
             alert(data.error);
-            return; // Не додаємо помилку в чат
+            return; 
         }
 
-        // Обробка приватних повідомлень
         if (data.private) {
             chatLog.innerHTML += `<div><strong>Приватне від ${data.from}:</strong> ${data.message}</div>`;
             return;
         }
 
-        // Обробка загальних повідомлень
         chatLog.innerHTML += `<div><strong>${data.from}:</strong> ${data.message}</div>`;
-        chatLog.scrollTop = chatLog.scrollHeight; // Прокрутка вниз
+        chatLog.scrollTop = chatLog.scrollHeight; 
     } catch (error) {
         console.error('Error processing WebSocket message:', error);
     }
@@ -67,13 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendButton = document.getElementById('sendButton');
     const chatLog = document.getElementById('chatLog');
 
-    // Логіка відкриття/закриття чату
     toggleChatButton.addEventListener('click', () => {
         chatSection.classList.toggle('hidden');
         toggleChatButton.textContent = chatSection.classList.contains('hidden') ? 'Відкрити чат' : 'Закрити чат';
     });
 
-    // Відправка повідомлення
     sendButton.addEventListener('click', () => {
         const message = messageInput.value.trim();
         const recipient = recipientInput.value.trim();
@@ -81,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (message) {
             socket.send(JSON.stringify({
                 type: 'message',
-                to: recipient || null, // Якщо поле отримувача порожнє, відправляємо всім
+                to: recipient || null, 
                 message,
             }));
 

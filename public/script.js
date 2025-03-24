@@ -86,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const currentTime = Date.now();
 
-        // Перевірка, чи потрібно чекати
         if (isRequestInProgress || currentTime - lastRequestTime < 60000) {
             const timeLeft = Math.ceil((60000 - (currentTime - lastRequestTime)) / 1000);
             alert(`Зачекайте ${timeLeft} секунд перед наступним зафарбуванням.`);
@@ -117,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 startTimer();
 
-                if (paintedCellsCount >= paintedCellsThreshold && !isEasterEggTriggered) {
+                if (paintedCellsCount === paintedCellsThreshold && !isEasterEggTriggered) {
                     isEasterEggTriggered = true;
                     activateRainbowTheme();
                     showCongratulations();

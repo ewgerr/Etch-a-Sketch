@@ -21,31 +21,6 @@ const db = new sqlite3.Database('./db/users.db', (err) => {
     else console.log('Connected to SQLite database');
 });
 
-db.run(`
-    CREATE TABLE IF NOT EXISTS grid (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        cell_id TEXT NOT NULL,
-        color TEXT NOT NULL,
-        grid_size INTEGER NOT NULL,
-        UNIQUE(cell_id, grid_size)
-    )
-`, (err) => {
-    if (err) console.error('Error creating grid table:', err);
-    else console.log('Grid table initialized');
-});
-
-db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL UNIQUE,
-        password TEXT,
-        google_id TEXT UNIQUE
-    )
-`, (err) => {
-    if (err) console.error('Error creating users table:', err);
-    else console.log('Users table initialized');
-});
-
 const credentialsPath = path.join(__dirname, 'config', 'client_secret.json');
 let credentials;
 
