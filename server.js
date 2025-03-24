@@ -233,7 +233,6 @@ app.post('/paint', isAuthenticated, async (req, res) => {
 
                     userLastPaintTime[userId] = currentTime;
 
-                    // Оновлення досягнень
                     await updateAchievements(userId);
 
                     broadcastGridUpdate({ cellId, color });
@@ -408,7 +407,6 @@ app.get('/achievements', isAuthenticated, async (req, res) => {
     try {
         const userId = req.session.userId;
 
-        // Загальна кількість зафарбованих клітинок
         const paintedCellsQuery = `
             SELECT COUNT(*) AS painted_cells
             FROM grid
@@ -417,7 +415,6 @@ app.get('/achievements', isAuthenticated, async (req, res) => {
         const paintedCellsResult = await queryDatabase(paintedCellsQuery, [userId]);
         const paintedCells = paintedCellsResult[0]?.painted_cells || 0;
 
-        // Використані кольори
         const usedColorsQuery = `
             SELECT DISTINCT color
             FROM grid
@@ -428,7 +425,6 @@ app.get('/achievements', isAuthenticated, async (req, res) => {
         const usedColors = usedColorsResult.map(row => row.color);
         const usedColorsCount = usedColors.length;
 
-        // Загальний час, проведений на сайті
         const timeQuery = `
             SELECT total_time
             FROM user_time
@@ -577,7 +573,7 @@ const server = app.listen(PORT, () => {
 
 const wss = new WebSocket.Server({ server });
 
-const users = {}; // Зберігає підключених користувачів
+const users = {}; 
 
 wss.on('connection', (ws) => {
     console.log('Client connected to WebSocket');
@@ -709,7 +705,6 @@ async function handleCellClick(event) {
 
 async function updateAchievements(userId) {
     try {
-        // Перевірка досягнення "Зафарбувати 100 клітинок"
         const paintedCellsQuery = `
             SELECT COUNT(*) AS painted_cells
             FROM grid
@@ -718,7 +713,6 @@ async function updateAchievements(userId) {
         const paintedCellsResult = await queryDatabase(paintedCellsQuery, [userId]);
         const painted100Cells = paintedCellsResult[0]?.painted_cells >= 100;
 
-        // Перевірка досягнення "Використати всі доступні кольори"
         const usedColorsQuery = `
             SELECT DISTINCT color
             FROM grid
@@ -730,12 +724,10 @@ async function updateAchievements(userId) {
             usedColorsResult.some(row => row.color === color)
         );
 
-        // Перевірка досягнення "Провести 1 годину на сайті"
         const sessionStartTime = req.session.startTime || Date.now();
         const elapsedTime = (Date.now() - sessionStartTime) / (1000 * 60 * 60); // Час у годинах
         const spentOneHour = elapsedTime >= 1;
 
-        // Оновлення досягнень у базі даних
         const updateQuery = `
             INSERT INTO achievements (user_id, painted_100_cells, used_all_colors, spent_one_hour)
             VALUES (?, ?, ?, ?)

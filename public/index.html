@@ -31,6 +31,7 @@
         <div id="container"></div>
         <aside id="colorPalette">
             <div id="paintedCellsCounter">Зафарбовані клітинки: 0</div>
+            <div id="timeOutToPaint" class="descTime">Зачекайте:0s</div>
             <div class="color-swatch custom-color">
                 <input type="color" id="customColor" name="customColor" value="#000000">
             </div>
@@ -43,15 +44,15 @@
             <div class="color-swatch" style="background-color: #ffffff;" data-color="#ffffff"></div>
             <div class="color-swatch" style="background-color: #000000;" data-color="#000000"></div>
         </aside>
+        <button id="toggleChatButton" class="chat-toggle-button">Відкрити чат</button>
 
-        <section id="chatSection">
+        <section id="chatSection" class="chat-section hidden">
             <h2>Чат</h2>
-            <div id="chatLog"></div>
-            <input type="text" id="recipientInput" placeholder="Кому (залиште порожнім для всіх)">
-            <input type="text" id="messageInput" placeholder="Ваше повідомлення">
+            <div id="chatLog" class="chat-log"></div>
+            <input id="recipientInput" type="text" placeholder="Кому (залиште порожнім для всіх)" />
+            <input id="messageInput" type="text" placeholder="Введіть повідомлення..." />
             <button id="sendButton">Відправити</button>
         </section>
-
     </main>
 
     <script src="users/themeToggle.js"></script>

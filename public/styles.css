@@ -16,6 +16,7 @@
     --hovered-background-color: #f1f1f1;
     --painter-background-color: rgba(153, 147, 147, 0.611);
     --box-shadow:  0 0 5px rgba(4, 211, 31, 0.57);
+    --box-shadow-chat: inset 0 2px 4px rgba(0, 0, 0, 0.323);
 }
 
 body.dark {
@@ -35,7 +36,8 @@ body.dark {
     --cell-hover-border-color: #000000;
     --hovered-background-color: #2a2a2a;
     --painter-background-color: rgba(50, 50, 50, 0.8);
-    --box-shadow:  0 0 10px rgba(0, 0, 0, 0.751);
+    --box-shadow:  0 0 10px rgba(255, 255, 255, 0.751);
+    --box-shadow-chat: inset 0 2px 4px rgba(255, 255, 255, 0.323);
 }
 
 body {
@@ -351,48 +353,108 @@ main {
     border: none;
 }
 
-
-/* Стилі для чату */
-#chatSection {
-    margin-top: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
+.chat-toggle-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: var(--button-background-color);
+    color: var(--text-color);
+    border: none;
     border-radius: 5px;
-    background-color: #f9f9f9;
-    color: #333;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-#chatLog {
-    height: 200px;
-    overflow-y: auto;
-    border: 1px solid #ddd;
+.chat-toggle-button:hover {
+    background-color: var(--button-hover-background-color);
+    transform: scale(1.05);
+}
+
+.chat-toggle-button:active {
+    transform: scale(0.95);
+}
+
+.chat-section {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 300px;
+    max-height: 400px;
+    background-color: var(--cell-hover-border-color);
+    border: 1px solid var(--container-border-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.504);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     padding: 10px;
-    margin-bottom: 10px;
-    background-color: #fff;
-    color: #333;
+    transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-#messageInput {
-    
-    width: calc(50% - 10px);
-    margin-right: 10px;
-    padding: 5px;
-    color: #333;
+.chat-section h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+    text-align: center;
 }
-#recipientInput{
-    display: none;
-    width: calc(50% - 10px);
-    margin-right: 10px;
-    padding: 5px;
-    color: #333;
+
+.chat-section.hidden {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.chat-log {
+    flex-grow: 1;
+    min-height:95px;
+    overflow-y: auto;
+    border: 1px solid var(--cell-border-color);
+    padding: 10px;
+    background-color: var(--input-background-color);
+    color: var(--link-background-color);
+    border-radius: 5px;
+    box-shadow: var(--box-shadow-chat);
+    font-size: 0.9rem;
+}
+
+#recipientInput,
+#messageInput {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 5px;
+    background-color: var(--input-background-color);
+    color: var(--link-background-color);
+    font-size: 1rem;
+    box-shadow: var(--box-shadow-chat);
 }
 
 #sendButton {
-    padding: 5px 10px;
+    padding: 10px;
+    background-color: var(--background-color);
+    color: var(--link-background-color);
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
     cursor: pointer;
+    box-shadow: var(--box-shadow-chat);
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
+#sendButton:hover {
+    background-color: var(--background-color);
+    color: var(--link-background-color);
+    transform: scale(1.05);
+}
 
+#sendButton:active {
+    transform: scale(0.95);
+}
 
 @media (max-width: 1440px) {
 
@@ -503,6 +565,29 @@ main {
         height: 30px;
         margin: 5px;
     }
+
+    chat-section {
+        width: 250px;
+        bottom: 60px;
+        right: 15px;
+        padding: 8px;
+    }
+
+    .chat-log {
+        font-size: 0.85rem;
+        min-height: 80px;
+    }
+
+    #recipientInput,
+    #messageInput {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    #sendButton {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
 }
 
 @media (max-width: 768px) and (orientation: landscape) {
@@ -569,6 +654,29 @@ main {
         overflow: auto;
         touch-action: none;
     }
+
+    .chat-section {
+        width: 220px;
+        bottom: 50px;
+        right: 10px;
+        padding: 6px;
+    }
+
+    .chat-log {
+        font-size: 0.8rem;
+        min-height: 70px;
+    }
+
+    #recipientInput,
+    #messageInput {
+        font-size: 0.85rem;
+        padding: 6px;
+    }
+
+    #sendButton {
+        font-size: 0.85rem;
+        padding: 6px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -605,15 +713,15 @@ main {
     }
 
     #colorPalette {
-        flex-direction: row; 
+        flex-direction: column; 
         justify-content: center;
         align-items: center;
         left: -3000px;
-        width: 80%; 
+        width: 30%; 
         max-width: none;
         margin: 0 auto 10px auto;
         padding: 8px;
-        top: 150px;
+        top: 16%;
     }
 
     #colorPalette.open {
@@ -634,9 +742,32 @@ main {
         touch-action: none;
         margin-top: 10px;
     }
+
+    .chat-section {
+        width: 200px;
+        bottom: 80px;
+        right: 5px;
+        padding: 5px;
+    }
+
+    .chat-log {
+        font-size: 0.75rem;
+        min-height: 60px;
+    }
+
+    #recipientInput,
+    #messageInput {
+        font-size: 0.8rem;
+        padding: 5px;
+    }
+
+    #sendButton {
+        font-size: 0.8rem;
+        padding: 5px;
+    }
 }
 
-@media (max-width: 430px) {
+@media (max-width: 435px) {
     header {
         flex-direction: column;
         align-items: center;
@@ -695,7 +826,7 @@ main {
         max-width: none;
         margin: 0 auto 10px auto;
         padding: 8px;
-        top: 150px;
+        top: 20%;
     }
 
     #colorPalette.open {
@@ -719,7 +850,7 @@ main {
     }
 }
 
-@media (max-width: 370px) {
+@media (max-width: 380px) {
     header {
         flex-direction: column;
         align-items: center;
@@ -775,7 +906,7 @@ main {
         max-width: none;
         margin: 0 auto 10px auto;
         padding: 8px;
-        top: 150px;
+        top: 18%;
     }
 
     #colorPalette.open {
@@ -871,6 +1002,29 @@ main {
         touch-action: none;
         margin-top: 10px;
     }
+
+    .chat-section {
+        width: 180px;
+        bottom: 70px;
+        right: 5px;
+        padding: 4px;
+    }
+
+    .chat-log {
+        font-size: 0.7rem;
+        min-height: 50px;
+    }
+
+    #recipientInput,
+    #messageInput {
+        font-size: 0.75rem;
+        padding: 4px;
+    }
+
+    #sendButton {
+        font-size: 0.75rem;
+        padding: 4px;
+    }
 }
 
 @media (min-width: 2560px) {
@@ -907,7 +1061,7 @@ main {
     }
 
     #colorPalette {
-        top: 300px;
+        top: 20%;
         left: 100px;
         width: 25%;
         max-width: 400px;

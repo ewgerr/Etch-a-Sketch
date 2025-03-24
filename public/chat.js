@@ -2,7 +2,7 @@ const socket = new WebSocket(`ws://${window.location.host}`);
 
 socket.addEventListener('open', async () => {
     try {
-        // Запрашиваем имя пользователя с сервера
+        // Запит імені користувача з сервера
         const response = await fetch('/check-session');
         const data = await response.json();
 
@@ -20,75 +20,85 @@ socket.addEventListener('open', async () => {
 });
 
 socket.addEventListener('message', (event) => {
-    const data = JSON.parse(event.data);
-    const chatLog = document.getElementById('chatLog');
-
-    // Фільтр для повідомлень з undefined
-    if (!data.from || !data.message) {
-        console.warn('Отримано некоректне повідомлення:', data);
-        return;
-    }
-
-
-    if (data.error) {
-        alert(data.error);
-    } else if (data.private) {
-        chatLog.innerHTML += `<div><strong>Приватне від ${data.from}:</strong> ${data.message}</div>`;
-    } else {
-        chatLog.innerHTML += `<div><strong>${data.from}:</strong> ${data.message}</div>`;
-    }
-
-    chatLog.scrollTop = chatLog.scrollHeight; // Прокрутка вниз
-});
-
-document.getElementById('sendButton').addEventListener('click', () => {
-    const message = document.getElementById('messageInput').value;
-    const recipient = document.getElementById('recipientInput').value;
-
-    socket.send(JSON.stringify({
-        type: 'message',
-        to: recipient, // або null для групового повідомлення
-        message,
-    }));
-      
-    document.getElementById('messageInput').value = '';
-});
-
-ws.on('message', (message) => {
     try {
-        const data = JSON.parse(message);
+        const data = JSON.parse(event.data);
+        const chatLog = document.getElementById('chatLog');
 
-        if (data.type === 'message') {
-            if (!ws.username || !data.message) {
-                console.error('Invalid message data:', data);
-                return;
-            }
-
-            if (data.to) {
-                const recipient = users[data.to];
-                if (recipient) {
-                    recipient.send(JSON.stringify({
-                        from: ws.username,
-                        message: data.message,
-                        private: true,
-                    }));
-                } else {
-                    ws.send(JSON.stringify({
-                        error: `User ${data.to} is not online.`,
-                    }));
-                }
-            } else {
-                wss.clients.forEach((client) => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({
-                            from: ws.username,
-                            message: data.message,
-                        }));
-                    }
-                });
-            }
+        // Фільтр для некоректних повідомлень
+        if (!data.from || !data.message) {
+            console.warn('Отримано некоректне повідомлення:', data);
+            return;
         }
+
+        // Обробка помилок
+        if (data.error) {
+            alert(data.error);
+            return; // Не додаємо помилку в чат
+        }
+
+        // Обробка приватних повідомлень
+        if (data.private) {
+            chatLog.innerHTML += `<div><strong>Приватне від ${data.from}:</strong> ${data.message}</div>`;
+            return;
+        }
+
+        // Обробка загальних повідомлень
+        chatLog.innerHTML += `<div><strong>${data.from}:</strong> ${data.message}</div>`;
+        chatLog.scrollTop = chatLog.scrollHeight; // Прокрутка вниз
     } catch (error) {
         console.error('Error processing WebSocket message:', error);
     }
+});
+
+socket.addEventListener('error', (error) => {
+    console.error('WebSocket error:', error);
+    alert('Сталася помилка з WebSocket-з\'єднанням.');
+});
+
+socket.addEventListener('close', () => {
+    alert('WebSocket-з\'єднання закрито.');
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleChatButton = document.getElementById('toggleChatButton');
+    const chatSection = document.getElementById('chatSection');
+    const messageInput = document.getElementById('messageInput');
+    const recipientInput = document.getElementById('recipientInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatLog = document.getElementById('chatLog');
+
+    // Логіка відкриття/закриття чату
+    toggleChatButton.addEventListener('click', () => {
+        chatSection.classList.toggle('hidden');
+        toggleChatButton.textContent = chatSection.classList.contains('hidden') ? 'Відкрити чат' : 'Закрити чат';
+    });
+
+    // Відправка повідомлення
+    sendButton.addEventListener('click', () => {
+        const message = messageInput.value.trim();
+        const recipient = recipientInput.value.trim();
+
+        if (message) {
+            socket.send(JSON.stringify({
+                type: 'message',
+                to: recipient || null, // Якщо поле отримувача порожнє, відправляємо всім
+                message,
+            }));
+
+            const messageElement = document.createElement('div');
+            //messageElement.textContent = `Ви: ${message}`;
+            messageElement.classList.add('message', 'sender');
+            chatLog.appendChild(messageElement);
+
+            messageInput.value = '';
+            chatLog.scrollTop = chatLog.scrollHeight; 
+        }
+    });
+
+   
+    messageInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            sendButton.click();
+        }
+    });
 });
