@@ -490,7 +490,6 @@ main {
         max-width: 1200px; 
         margin: 0 auto; 
         border: 2px solid var(--container-border-color);
-        background-color: var(--container-background-color);
         box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
         border-radius: 10px;
         overflow: auto;

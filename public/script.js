@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let isEasterEggTriggered = false;
 
     let userId = null;
-    let gridSize = 50; // Розмір сітки (кількість клітинок в рядку або стовпці)
+    let gridSize = 70; // Розмір сітки (кількість клітинок в рядку або стовпці)
 
     let isRequestInProgress = false; // Флаг для перевірки активного запиту
     let lastRequestTime = 0; // Час останнього успішного запиту
